@@ -1,0 +1,7 @@
+# Dependencias para eval y guardrails
+# (Ambos scripts usan solo la stdlib de Python 3.11+)
+# No se requieren paquetes externos.
+#
+# Para desarrollo local:
+# python eval_quiz.py presentacion/ia_bloque_*.html
+# python guardrails.py presentacion/ia_bloque_*.html

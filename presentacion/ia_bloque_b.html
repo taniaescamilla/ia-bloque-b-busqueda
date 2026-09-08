@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>IA Bloque B</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+:root {
+  --navy: #232F3F;
+  --cyan: #28B4E7;
+  --amber: #FCBB6B;
+  --tan: #D4AF8D;
+  --guinda: #9F2241;
+  --verde: #235B4E;
+  --dorado: #BC955C;
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --surface-alt: #EDF1F7;
+  --text: #1A2332;
+  --text-dim: #5A6577;
+  --border: #D1D9E6;
+  --code-bg: #1B2838;
+  --code-text: #E2E8F0;
+  --success: #3A7D5C;
+  --error: #C45B5B;
+  --tab-hover: rgba(40, 180, 231, 0.08);
+  --kw: #C792EA; --fn: #82AAFF; --str: #A8D08D; --cmt: #6A7B8B;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1B2A; --surface: #162233; --surface-alt: #1D2D42;
+    --text: #E2E8F0; --text-dim: #8896A7; --border: #2A3A50;
+    --code-bg: #0A1424; --tab-hover: rgba(40,180,231,0.12);
+    --success: #5CB88A; --error: #E07070;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1B2A; --surface: #162233; --surface-alt: #1D2D42;
+  --text: #E2E8F0; --text-dim: #8896A7; --border: #2A3A50;
+  --code-bg: #0A1424; --tab-hover: rgba(40,180,231,0.12);
+  --success: #5CB88A; --error: #E07070;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Source Sans 3',-apple-system,sans-serif; line-height:1.65; min-height:100vh; }
+
+.header { background:linear-gradient(135deg,var(--navy) 0%,#1a3a5c 100%); color:#fff; padding:1.5rem 2rem; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; }
+.header-brand { display:flex; align-items:center; gap:0.75rem; }
+.unrc-badge { background:var(--guinda); color:#fff; font-size:0.65rem; font-weight:700; letter-spacing:0.08em; padding:0.3rem 0.6rem; border-radius:3px; text-transform:uppercase; white-space:nowrap; }
+.header-text { flex:1; min-width:220px; }
+.header-text h1 { font-family:'JetBrains Mono',monospace; font-size:1.5rem; font-weight:700; line-height:1.2; }
+.header-text h1 .bracket { color:var(--amber); }
+.header-meta { font-size:0.85rem; opacity:0.85; margin-top:0.35rem; }
+.header-team { display:flex; gap:0.5rem; flex-wrap:wrap; }
+.team-chip { background:rgba(255,255,255,0.15); font-size:0.75rem; padding:0.25rem 0.65rem; border-radius:20px; white-space:nowrap; }
+
+.tab-bar { display:flex; background:var(--surface); border-bottom:2px solid var(--border); overflow-x:auto; position:sticky; top:0; z-index:100; }
+.tab-btn { font-family:'Source Sans 3',sans-serif; font-size:0.85rem; font-weight:600; padding:0.85rem 1.2rem; border:none; background:transparent; color:var(--text-dim); cursor:pointer; white-space:nowrap; border-bottom:3px solid transparent; transition:all 0.2s; }
+.tab-btn:hover { background:var(--tab-hover); color:var(--text); }
+.tab-btn.active { color:var(--cyan); border-bottom-color:var(--cyan); }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+.content { max-width:960px; margin:0 auto; padding:2rem 1.5rem; }
+.section { margin-bottom:2.5rem; }
+.section-label { font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; color:var(--cyan); margin-bottom:0.4rem; }
+.section h2 { font-size:1.35rem; font-weight:700; margin-bottom:1rem; text-wrap:balance; }
+.section h3 { font-size:1.05rem; font-weight:700; margin:1.5rem 0 0.6rem; }
+.section p { margin-bottom:0.8rem; max-width:65ch; }
+
+.concept-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1rem; margin:1.2rem 0; }
+.concept-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.2rem; border-top:3px solid var(--cyan); }
+.concept-card.t2 { border-top-color:var(--amber); }
+.concept-card.t3 { border-top-color:var(--guinda); }
+.concept-card.t4 { border-top-color:var(--verde); }
+.concept-card h4 { font-family:'JetBrains Mono',monospace; font-size:0.9rem; margin-bottom:0.5rem; }
+.concept-card p { font-size:0.88rem; color:var(--text-dim); margin-bottom:0.4rem; }
+
+.code-block { background:var(--code-bg); color:var(--code-text); font-family:'JetBrains Mono',monospace; font-size:0.82rem; line-height:1.6; padding:1.2rem; border-radius:6px; overflow-x:auto; margin:1rem 0; white-space:pre; }
+.code-block .kw { color:var(--kw); } .code-block .fn { color:var(--fn); } .code-block .str { color:var(--str); } .code-block .cmt { color:var(--cmt); font-style:italic; }
+
+.table-wrap { overflow-x:auto; margin:1rem 0; }
+table { width:100%; border-collapse:collapse; font-size:0.88rem; font-variant-numeric:tabular-nums; }
+th { background:var(--surface-alt); font-weight:600; text-align:left; padding:0.6rem 0.8rem; border-bottom:2px solid var(--border); font-size:0.8rem; letter-spacing:0.02em; }
+td { padding:0.55rem 0.8rem; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+code { font-family:'JetBrains Mono',monospace; font-size:0.82em; background:var(--surface-alt); padding:0.1em 0.35em; border-radius:3px; }
+
+.callout { background:var(--surface); border-left:4px solid var(--cyan); padding:1rem 1.2rem; margin:1rem 0; border-radius:0 6px 6px 0; font-size:0.9rem; }
+.callout.warn { border-left-color:var(--amber); }
+.callout.danger { border-left-color:var(--guinda); }
+
+.timeline { position:relative; padding-left:2rem; margin:1.5rem 0; }
+.timeline::before { content:''; position:absolute; left:0.5rem; top:0; bottom:0; width:2px; background:var(--border); }
+.tl-item { position:relative; margin-bottom:1.2rem; }
+.tl-item::before { content:''; position:absolute; left:-1.65rem; top:0.5rem; width:10px; height:10px; border-radius:50%; background:var(--cyan); border:2px solid var(--bg); }
+.tl-item.gold::before { background:var(--amber); }
+.tl-item.winter::before { background:var(--text-dim); }
+.tl-item.deep::before { background:var(--guinda); }
+.tl-year { font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--cyan); font-weight:700; }
+.tl-item.gold .tl-year { color:var(--amber); }
+.tl-item.winter .tl-year { color:var(--text-dim); }
+.tl-item.deep .tl-year { color:var(--guinda); }
+.tl-text { font-size:0.88rem; }
+.tl-text strong { font-weight:600; }
+
+.vs-strip { display:grid; grid-template-columns:1fr auto 1fr; gap:0; margin:1.5rem 0; border-radius:6px; overflow:hidden; border:1px solid var(--border); }
+.vs-col { padding:1.2rem; }
+.vs-col:first-child { background:var(--surface); }
+.vs-col:last-child { background:var(--surface-alt); }
+.vs-mid { display:flex; align-items:center; justify-content:center; padding:0 0.8rem; background:var(--border); font-weight:700; font-size:0.8rem; color:var(--text-dim); }
+.vs-col h4 { font-size:0.85rem; font-weight:700; margin-bottom:0.5rem; color:var(--cyan); }
+.vs-col p { font-size:0.85rem; margin-bottom:0.3rem; }
+
+/* Quiz */
+.quiz-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.2rem; margin-bottom:0.8rem; }
+.quiz-card h4 { font-size:0.95rem; margin-bottom:0.8rem; }
+.quiz-opts { display:flex; flex-direction:column; gap:0.4rem; }
+.quiz-opt { display:flex; align-items:center; gap:0.6rem; padding:0.55rem 0.8rem; border-radius:4px; border:1px solid var(--border); cursor:pointer; font-size:0.88rem; transition:all 0.15s; }
+.quiz-opt:hover { background:var(--tab-hover); border-color:var(--cyan); }
+.quiz-card[data-answered] .quiz-opt { cursor:default; }
+.quiz-card[data-answered] .quiz-opt:hover { background:transparent; border-color:var(--border); }
+.quiz-card[data-answered] .quiz-opt.correct:hover { background:rgba(58,125,92,0.12); border-color:var(--success); }
+.quiz-card[data-answered] .quiz-opt.wrong:hover { background:rgba(196,91,91,0.12); border-color:var(--error); }
+.quiz-opt .marker { font-family:'JetBrains Mono',monospace; font-size:0.75rem; font-weight:700; color:var(--cyan); min-width:1.2rem; }
+.quiz-opt.correct { background:rgba(58,125,92,0.12); border-color:var(--success); }
+.quiz-opt.wrong { background:rgba(196,91,91,0.12); border-color:var(--error); }
+.quiz-feedback { display:none; margin-top:0.6rem; padding:0.6rem 0.8rem; border-radius:4px; font-size:0.85rem; }
+.quiz-feedback.show { display:block; }
+.quiz-feedback.right { background:rgba(58,125,92,0.1); color:var(--success); }
+.quiz-feedback.wrong-fb { background:rgba(196,91,91,0.1); color:var(--error); }
+#quizScore { display:none; text-align:center; font-size:1.3rem; font-weight:700; margin:1.5rem 0; }
+#resetQuizBtn { display:none; margin:0 auto; padding:0.6rem 1.5rem; background:var(--cyan); color:#fff; border:none; border-radius:4px; font-size:0.9rem; font-weight:600; cursor:pointer; }
+
+/* Q&A accordion */
+.qa-item { background:var(--surface); border:1px solid var(--border); border-radius:6px; margin-bottom:0.6rem; overflow:hidden; }
+.qa-q { display:flex; align-items:center; gap:0.8rem; padding:0.9rem 1.2rem; cursor:pointer; font-weight:600; font-size:0.92rem; user-select:none; transition:background 0.15s; }
+.qa-q:hover { background:var(--tab-hover); }
+.qa-num { font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--cyan); min-width:1.8rem; }
+.qa-arrow { margin-left:auto; font-size:0.7rem; color:var(--text-dim); transition:transform 0.2s; }
+.qa-item.open .qa-arrow { transform:rotate(180deg); }
+.qa-a { max-height:0; overflow:hidden; transition:max-height 0.3s ease; }
+.qa-a-inner { padding:0 1.2rem 1rem; font-size:0.88rem; line-height:1.7; color:var(--text-dim); }
+
+footer { text-align:center; padding:1.5rem; font-size:0.75rem; color:var(--text-dim); border-top:1px solid var(--border); }
+
+@media (max-width:640px) {
+  .header { padding:1rem; gap:1rem; }
+  .header-text h1 { font-size:1.2rem; }
+  .content { padding:1.2rem 1rem; }
+  .concept-row { grid-template-columns:1fr; }
+  .vs-strip { grid-template-columns:1fr; }
+  .vs-mid { padding:0.5rem; }
+  .tab-btn { padding:0.7rem 0.8rem; font-size:0.8rem; }
+}
+
+.deep-dive { margin:1rem 0; border:1px solid var(--cyan); border-radius:8px; overflow:hidden; }
+.deep-dive summary { padding:0.75rem 1rem; background:rgba(40,180,231,0.08); cursor:pointer; font-weight:600; font-size:0.95rem; color:var(--cyan); list-style:none; }
+.deep-dive summary::-webkit-details-marker { display:none; }
+.deep-dive summary::before { content:'\25B6 '; transition:transform 0.2s; display:inline-block; }
+.deep-dive[open] summary::before { transform:rotate(90deg); }
+.deep-dive .deep-content { padding:1rem 1.25rem; background:var(--surface); }
+.deep-dive .deep-content p { margin-bottom:0.75rem; }
+.deep-dive .deep-content .formula { background:var(--surface-alt); padding:0.5rem 1rem; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:0.9rem; margin:0.75rem 0; overflow-x:auto; }
+</style>
+</head>
+<body>
+
+
+<!-- ═══════════ HEADER ═══════════ -->
+<div class="header">
+  <div class="header-brand">
+    <div class="unrc-badge">UNRC</div>
+    <div class="header-text">
+      <h1><span class="bracket">&lt;</span>IA<span class="bracket">/&gt;</span> Bloque B</h1>
+      <div class="header-meta">LCDN4INT10 Inteligencia Artificial &middot; 4o semestre &middot; Prof. Haro</div>
+    </div>
+  </div>
+  <div class="header-team">
+    <span class="team-chip">Daniel Ruffo</span>
+    <span class="team-chip">Giovana Espinosa</span>
+  </div>
+</div>
+
+<!-- ═══════════ TABS ═══════════ -->
+<nav class="tab-bar">
+  <button class="tab-btn active" data-tab="estados">Espacio de estados</button>
+  <button class="tab-btn" data-tab="direccion">Adelante/Atr&aacute;s</button>
+  <button class="tab-btn" data-tab="astar">A, A*, AO*</button>
+  <button class="tab-btn" data-tab="minimax">Minimax</button>
+  <button class="tab-btn" data-tab="geneticos">Alg. gen&eacute;ticos</button>
+  <button class="tab-btn" data-tab="defensa">Defensa</button>
+  <button class="tab-btn" data-tab="quiz">Quiz</button>
+</nav>
+
+<!-- ═══════════ TAB 1: ESPACIO DE ESTADOS ═══════════ -->
+<div class="tab-panel active" id="tab-estados">
+<div class="content">
+  <div class="section">
+    <div class="section-label">Bloque B &middot; Secci&oacute;n 1</div>
+    <h2>Espacio de estados</h2>
+    <p>Un problema de b&uacute;squeda en IA se modela como un espacio de estados: un grafo donde cada nodo es una configuraci&oacute;n posible del problema y cada arista es un operador (acci&oacute;n) que transforma un estado en otro.</p>
+
+    <h3>Formulaci&oacute;n de un problema de b&uacute;squeda</h3>
+    <div class="concept-row">
+      <div class="concept-card">
+        <h4>Estado inicial</h4>
+        <p>Configuraci&oacute;n de partida del problema. Por ejemplo, en el 8-puzzle: la disposici&oacute;n inicial de las fichas en el tablero.</p>
+      </div>
+      <div class="concept-card t2">
+        <h4>Estado meta (goal)</h4>
+        <p>Configuraci&oacute;n objetivo que queremos alcanzar. Puede ser expl&iacute;cito (una configuraci&oacute;n concreta) o definido por una condici&oacute;n (test de meta).</p>
+      </div>
+      <div class="concept-card t3">
+        <h4>Operadores (acciones)</h4>
+        <p>Funciones que transforman un estado en otro. En el 8-puzzle: mover el espacio vac&iacute;o arriba, abajo, izquierda o derecha. Definen las aristas del grafo.</p>
+      </div>
+      <div class="concept-card t4">
+        <h4>Funci&oacute;n de costo</h4>
+        <p>Asigna un costo num&eacute;rico a cada acci&oacute;n. En el 8-puzzle cada movimiento cuesta 1. En mapas, el costo podr&iacute;a ser la distancia en km.</p>
+      </div>
+    </div>
+
+    <h3>El espacio de estados como grafo</h3>
+    <p>Cada nodo del grafo es un estado posible del problema. Las aristas conectan estados alcanzables mediante un operador. La b&uacute;squeda consiste en encontrar un camino del estado inicial al estado meta.</p>
+    <div class="callout">
+      <strong>Ejemplo: 8-puzzle.</strong> El espacio de estados tiene 9!/2 = 181,440 estados alcanzables (la mitad de 9! porque solo la mitad de las permutaciones son solubles). Estado inicial: fichas desordenadas. Estado meta: fichas en orden 1-2-3 / 4-5-6 / 7-8-_. Operadores: mover espacio vac&iacute;o en 4 direcciones.
+    </div>
+
+    <h3>Propiedades del espacio de estados</h3>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Propiedad</th><th>Definici&oacute;n</th><th>Ejemplo (8-puzzle)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tama&ntilde;o</strong></td><td>N&uacute;mero total de estados posibles</td><td>181,440 estados alcanzables</td></tr>
+        <tr><td><strong>Factor de ramificaci&oacute;n (b)</strong></td><td>N&uacute;mero promedio de sucesores por nodo</td><td>~2.67 (esquinas: 2, bordes: 3, centro: 4)</td></tr>
+        <tr><td><strong>Profundidad de la soluci&oacute;n (d)</strong></td><td>N&uacute;mero de pasos del camino &oacute;ptimo</td><td>Variable: 0 a 31 movimientos</td></tr>
+        <tr><td><strong>Profundidad m&aacute;xima (m)</strong></td><td>Camino m&aacute;s largo posible sin repetir estados</td><td>Puede ser muy grande si no se detectan ciclos</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>Representaci&oacute;n en c&oacute;digo</h3>
+    <p>Los estados se representan como estructuras inmutables (para poder usar conjuntos de visitados). Dos opciones comunes:</p>
+
+    <div class="code-block"><span class="cmt"># Opci&oacute;n 1: tupla (inmutable, hashable)</span>
+estado = (<span class="str">1</span>, <span class="str">2</span>, <span class="str">3</span>, <span class="str">4</span>, <span class="str">0</span>, <span class="str">5</span>, <span class="str">6</span>, <span class="str">7</span>, <span class="str">8</span>)  <span class="cmt"># 0 = espacio vac&iacute;o</span>
+meta  = (<span class="str">1</span>, <span class="str">2</span>, <span class="str">3</span>, <span class="str">4</span>, <span class="str">5</span>, <span class="str">6</span>, <span class="str">7</span>, <span class="str">8</span>, <span class="str">0</span>)
+
+<span class="cmt"># Se puede meter en un set de visitados directamente</span>
+visitados = {estado}
+
+<span class="cmt"># Opci&oacute;n 2: clase con __hash__ y __eq__</span>
+<span class="kw">class</span> <span class="fn">Estado</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, tablero, costo=<span class="str">0</span>, padre=<span class="str">None</span>):
+        self.tablero = tuple(tablero)
+        self.costo = costo
+        self.padre = padre
+
+    <span class="kw">def</span> <span class="fn">__hash__</span>(self):
+        <span class="kw">return</span> hash(self.tablero)
+
+    <span class="kw">def</span> <span class="fn">__eq__</span>(self, otro):
+        <span class="kw">return</span> self.tablero == otro.tablero
+
+    <span class="kw">def</span> <span class="fn">sucesores</span>(self):
+        <span class="cmt"># Genera los estados vecinos moviendo el espacio vac&iacute;o</span>
+        idx = self.tablero.index(<span class="str">0</span>)
+        fila, col = idx // <span class="str">3</span>, idx % <span class="str">3</span>
+        movimientos = []
+        <span class="kw">for</span> df, dc <span class="kw">in</span> [(-<span class="str">1</span>,<span class="str">0</span>),(<span class="str">1</span>,<span class="str">0</span>),(<span class="str">0</span>,-<span class="str">1</span>),(<span class="str">0</span>,<span class="str">1</span>)]:
+            nf, nc = fila + df, col + dc
+            <span class="kw">if</span> <span class="str">0</span> &lt;= nf &lt; <span class="str">3</span> <span class="kw">and</span> <span class="str">0</span> &lt;= nc &lt; <span class="str">3</span>:
+                nuevo = list(self.tablero)
+                nuevo[idx], nuevo[nf*<span class="str">3</span>+nc] = nuevo[nf*<span class="str">3</span>+nc], nuevo[idx]
+                movimientos.append(Estado(nuevo, self.costo+<span class="str">1</span>, self))
+        <span class="kw">return</span> movimientos</div>
+
+    <div class="callout warn">
+      <strong>Clave para la evidencia:</strong> la formulaci&oacute;n del problema (estado inicial, meta, operadores, costo) es el primer paso antes de elegir cualquier algoritmo de b&uacute;squeda. Si la formulaci&oacute;n est&aacute; mal, ning&uacute;n algoritmo va a funcionar bien.
+    </div>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: Completitud de DFS, cu&aacute;ndo falla formalmente</summary>
+    <div class="deep-content">
+      <p><strong>DFS (tree-search) NO es completo en grafos infinitos o con ciclos.</strong> La raz&oacute;n formal es que DFS puede seguir una rama infinita para siempre sin retroceder, por lo que nunca llegar&iacute;a a la soluci&oacute;n aunque esta exista en otra rama del &aacute;rbol.</p>
+      <p>Considere un grafo con un nodo A que tiene un sucesor B, y B tiene como sucesor a A de vuelta (ciclo A &rarr; B &rarr; A &rarr; ...). DFS sin detecci&oacute;n de ciclos expandir&aacute; A, luego B, luego A otra vez, y as&iacute; infinitamente, sin explorar nunca otros sucesores de A que podr&iacute;an contener la meta.</p>
+      <p><strong>Con graph-search y conjunto CLOSED (visitados),</strong> DFS S&Iacute; es completo en espacios <em>finitos</em>. Al marcar nodos visitados, garantiza que cada nodo se expande a lo m&aacute;s una vez, por lo que eventualmente explora todo el espacio accesible.</p>
+      <p>Sin embargo, incluso con CLOSED, si el espacio es infinito (por ejemplo, un &aacute;rbol de profundidad ilimitada sin ciclos), DFS puede seguir hacia abajo indefinidamente por una rama infinita sin meta. Por eso IDS resuelve el problema: limita la profundidad e incrementa gradualmente.</p>
+      <p><em>Fuente: Russell &amp; Norvig, AIMA cap. 3, secciones 3.4.3 y 3.4.6.</em></p>
+    </div>
+    </details>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════ TAB 2: BÚSQUEDA ADELANTE/ATRÁS ═══════════ -->
+<div class="tab-panel" id="tab-direccion">
+<div class="content">
+  <div class="section">
+    <div class="section-label">Bloque B &middot; Secci&oacute;n 2</div>
+    <h2>B&uacute;squeda hacia adelante y hacia atr&aacute;s</h2>
+    <p>La direcci&oacute;n de la b&uacute;squeda importa. Dependiendo de la estructura del problema, conviene explorar desde el inicio, desde la meta, o desde ambos lados.</p>
+
+    <div class="vs-strip">
+      <div class="vs-col">
+        <h4>Forward (hacia adelante)</h4>
+        <p><strong>Direcci&oacute;n:</strong> del estado inicial hacia la meta</p>
+        <p><strong>Nombre:</strong> data-driven (guiada por datos)</p>
+        <p><strong>Aplica operadores:</strong> en la direcci&oacute;n natural</p>
+        <p><strong>Cu&aacute;ndo usarla:</strong> cuando la meta no est&aacute; bien definida o hay muchas metas posibles</p>
+        <p><strong>Ejemplo:</strong> "explorar todas las jugadas posibles desde la posici&oacute;n actual"</p>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-col">
+        <h4>Backward (hacia atr&aacute;s)</h4>
+        <p><strong>Direcci&oacute;n:</strong> de la meta hacia el estado inicial</p>
+        <p><strong>Nombre:</strong> goal-driven (guiada por objetivo)</p>
+        <p><strong>Aplica operadores:</strong> en reversa (precondiciones)</p>
+        <p><strong>Cu&aacute;ndo usarla:</strong> cuando la meta est&aacute; bien definida y el inicio es amplio</p>
+        <p><strong>Ejemplo:</strong> "probar un teorema partiendo de lo que se quiere demostrar"</p>
+      </div>
+    </div>
+
+    <h3>B&uacute;squeda bidireccional</h3>
+    <p>Se ejecutan dos b&uacute;squedas simult&aacute;neas: una hacia adelante desde el inicio y otra hacia atr&aacute;s desde la meta. Cuando las dos fronteras se encuentran, se reconstruye el camino completo.</p>
+    <div class="callout">
+      <strong>Ventaja enorme en complejidad:</strong> si la b&uacute;squeda unidireccional es O(b<sup>d</sup>), la bidireccional reduce a O(b<sup>d/2</sup>) en cada lado, o sea O(2 &middot; b<sup>d/2</sup>). Con b=10 y d=6: unidireccional explora ~1,000,000 nodos; bidireccional explora ~2,000. Reducci&oacute;n de 500x.
+    </div>
+
+    <h3>Algoritmos de b&uacute;squeda no informada</h3>
+    <p>Estos algoritmos no usan heur&iacute;stica: exploran el espacio sistem&aacute;ticamente sin saber qu&eacute; tan cerca est&aacute;n de la meta.</p>
+
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Algoritmo</th><th>Estructura</th><th>Completo</th><th>&Oacute;ptimo</th><th>Tiempo</th><th>Espacio</th></tr></thead>
+      <tbody>
+        <tr><td><strong>BFS</strong> (amplitud)</td><td>Cola FIFO</td><td>S&iacute;</td><td>S&iacute; (costo uniforme)</td><td>O(b<sup>d</sup>)</td><td>O(b<sup>d</sup>)</td></tr>
+        <tr><td><strong>DFS</strong> (profundidad)</td><td>Pila LIFO</td><td>No (puede ciclar)</td><td>No</td><td>O(b<sup>m</sup>)</td><td>O(bm)</td></tr>
+        <tr><td><strong>DLS</strong> (profundidad limitada)</td><td>Pila + l&iacute;mite l</td><td>No (si d &gt; l)</td><td>No</td><td>O(b<sup>l</sup>)</td><td>O(bl)</td></tr>
+        <tr><td><strong>IDS</strong> (profundizaci&oacute;n iterativa)</td><td>DLS repetido: l=0,1,2...</td><td>S&iacute;</td><td>S&iacute; (costo uniforme)</td><td>O(b<sup>d</sup>)</td><td>O(bd)</td></tr>
+        <tr><td><strong>UCS</strong> (costo uniforme)</td><td>Cola de prioridad por g(n)</td><td>S&iacute;</td><td>S&iacute;</td><td>O(b<sup>1+&lfloor;C*/&epsilon;&rfloor;</sup>)</td><td>O(b<sup>1+&lfloor;C*/&epsilon;&rfloor;</sup>)</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="callout warn">
+      <strong>IDS: lo mejor de ambos mundos.</strong> Profundizaci&oacute;n iterativa combina la optimalidad de BFS con la eficiencia de memoria de DFS. Parece redundante (re-expande nodos), pero en la pr&aacute;ctica el costo extra es m&iacute;nimo: la mayor&iacute;a de los nodos est&aacute;n en el &uacute;ltimo nivel, as&iacute; que re-explorar los niveles superiores es barato.
+    </div>
+
+    <h3>Propiedades de los algoritmos</h3>
+    <div class="concept-row">
+      <div class="concept-card">
+        <h4>Completitud</h4>
+        <p>&iquest;Siempre encuentra soluci&oacute;n si existe? BFS, IDS y UCS s&iacute;. DFS no (puede perderse en ramas infinitas).</p>
+      </div>
+      <div class="concept-card t2">
+        <h4>Optimalidad</h4>
+        <p>&iquest;Encuentra la soluci&oacute;n de menor costo? BFS s&iacute; (costo uniforme), UCS siempre. DFS y DLS no.</p>
+      </div>
+      <div class="concept-card t3">
+        <h4>Complejidad temporal</h4>
+        <p>Nodos explorados en el peor caso. T&iacute;picamente O(b<sup>d</sup>) donde b = ramificaci&oacute;n, d = profundidad de soluci&oacute;n.</p>
+      </div>
+      <div class="concept-card t4">
+        <h4>Complejidad espacial</h4>
+        <p>Memoria requerida. BFS almacena toda la frontera: O(b<sup>d</sup>). DFS solo la rama actual: O(bm). Esto importa mucho en problemas grandes.</p>
+      </div>
+    </div>
+
+    <h3>Cu&aacute;ndo usar cada direcci&oacute;n</h3>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Situaci&oacute;n</th><th>Direcci&oacute;n recomendada</th><th>Raz&oacute;n</th></tr></thead>
+      <tbody>
+        <tr><td>Meta no est&aacute; clara o hay muchas metas</td><td>Forward</td><td>No se puede partir de la meta si no se conoce</td></tr>
+        <tr><td>Meta bien definida, inicio amplio</td><td>Backward</td><td>La meta acota la b&uacute;squeda, el inicio la expandir&iacute;a</td></tr>
+        <tr><td>Ambos conocidos, espacio grande</td><td>Bidireccional</td><td>Reduce exponencialmente: O(b<sup>d/2</sup>) por lado</td></tr>
+        <tr><td>Demostraci&oacute;n de teoremas</td><td>Backward</td><td>Cl&aacute;sico: partir de lo que se quiere probar</td></tr>
+        <tr><td>Navegaci&oacute;n en mapa (A a B conocidos)</td><td>Bidireccional</td><td>Ambos extremos est&aacute;n definidos</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: IDS tiene la misma complejidad temporal que BFS</summary>
+    <div class="deep-content">
+      <p>Parece contraintuitivo que IDS (Iterative Deepening Search) re-explore nodos en cada iteraci&oacute;n y aun as&iacute; tenga la misma complejidad que BFS. La clave est&aacute; en que la mayor&iacute;a de los nodos viven en el &uacute;ltimo nivel del &aacute;rbol.</p>
+      <p><strong>N&uacute;mero exacto de nodos generados por IDS:</strong></p>
+      <div class="formula">N(IDS) = (d+1)b&sup0; + d&middot;b&sup1; + (d-1)&middot;b&sup2; + ... + 1&middot;b<sup>d</sup></div>
+      <p>Cada t&eacute;rmino refleja cu&aacute;ntas veces se visita cada nivel: el nivel 0 (ra&iacute;z) se visita d+1 veces (una por cada iteraci&oacute;n), el nivel 1 se visita d veces, y as&iacute; sucesivamente. El nivel d solo se visita 1 vez.</p>
+      <p>Para b &gt; 1, esta suma converge a <strong>O(b<sup>d</sup>)</strong>, exactamente igual que BFS. El factor constante adicional es b/(b-1), que es peque&ntilde;o para b grande.</p>
+      <p><strong>Ejemplo con b=10, d=5:</strong></p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Algoritmo</th><th>Nodos generados</th></tr></thead>
+        <tbody>
+          <tr><td>BFS</td><td>10 + 100 + 1,000 + 10,000 + 100,000 = <strong>111,111</strong></td></tr>
+          <tr><td>IDS</td><td>6 + 50 + 400 + 3,000 + 20,000 + 100,000 = <strong>123,456</strong></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>IDS genera solo un <strong>11% m&aacute;s de nodos</strong> que BFS, pero usa memoria O(bd) en vez de O(b<sup>d</sup>). Con b=10 y d=5, eso es ~50 nodos en memoria vs. ~111,111. Un intercambio excelente.</p>
+      <p>La complejidad espacial de IDS es <strong>O(bd)</strong>, igual que DFS, porque solo mantiene una rama en memoria a la vez.</p>
+      <p><em>Fuente: Korf, R. E. (1985). Depth-first iterative-deepening: An optimal admissible tree search. Artificial Intelligence, 27(1), 97-109.</em></p>
+    </div>
+    </details>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════ TAB 3: A, A*, AO* ═══════════ -->
+<div class="tab-panel" id="tab-astar">
+<div class="content">
+  <div class="section">
+    <div class="section-label">Bloque B &middot; Secci&oacute;n 3</div>
+    <h2>Algoritmos A, A* y AO*</h2>
+    <p>Estos algoritmos usan una funci&oacute;n heur&iacute;stica para guiar la b&uacute;squeda. La diferencia clave est&aacute; en las garant&iacute;as que ofrece cada uno seg&uacute;n la calidad de la heur&iacute;stica.</p>
+
+    <h3>Funci&oacute;n heur&iacute;stica</h3>
+    <p>Una funci&oacute;n h(n) que estima el costo de llegar desde el nodo n hasta la meta. No es exacta: es una estimaci&oacute;n. La calidad de la heur&iacute;stica determina la eficiencia del algoritmo.</p>
+    <div class="concept-row">
+      <div class="concept-card">
+        <h4>g(n): costo real acumulado</h4>
+        <p>Costo del camino desde el inicio hasta el nodo n. Se conoce con exactitud.</p>
+      </div>
+      <div class="concept-card t2">
+        <h4>h(n): estimaci&oacute;n al objetivo</h4>
+        <p>Estimaci&oacute;n del costo desde n hasta la meta. Es la heur&iacute;stica.</p>
+      </div>
+      <div class="concept-card t3">
+        <h4>f(n) = g(n) + h(n)</h4>
+        <p>Costo total estimado del camino a trav&eacute;s de n. Es lo que A y A* usan para elegir qu&eacute; nodo expandir primero.</p>
+      </div>
+    </div>
+
+    <h3>Algoritmo A</h3>
+    <p>Algoritmo A usa f(n) = g(n) + h(n) con cualquier heur&iacute;stica, sin restricciones. Expande el nodo con menor f(n) de la frontera. Sin garant&iacute;as de optimalidad a menos que h cumpla condiciones espec&iacute;ficas.</p>
+
+    <h3>Algoritmo A*</h3>
+    <p>A* es el Algoritmo A con una restricci&oacute;n crucial: la heur&iacute;stica debe ser <strong>admisible</strong>.</p>
+
+    <div class="callout">
+      <strong>Heur&iacute;stica admisible:</strong> h(n) &le; h*(n) para todo nodo n, donde h*(n) es el costo real &oacute;ptimo de n a la meta. La heur&iacute;stica <em>nunca sobreestima</em>. Esto garantiza que A* encuentra la soluci&oacute;n &oacute;ptima.
+    </div>
+
+    <p><strong>Boceto de la prueba de optimalidad:</strong> supongamos que A* expande un nodo meta G con costo f(G) = g(G) (porque h(G) = 0). Si existiera otra soluci&oacute;n G' con g(G') &lt; g(G), habr&iacute;a un nodo n en el camino a G' a&uacute;n en la frontera con f(n) = g(n) + h(n) &le; g(n) + h*(n) = g(G') &lt; g(G) = f(G). Pero A* elige el nodo de menor f, as&iacute; que habr&iacute;a expandido n antes que G. Contradicci&oacute;n.</p>
+
+    <div class="callout warn">
+      <strong>Heur&iacute;stica consistente (mon&oacute;tona):</strong> condici&oacute;n m&aacute;s fuerte. h(n) &le; c(n, n') + h(n') para todo par de nodos donde n' es sucesor de n. Esto implica admisibilidad, y adem&aacute;s garantiza que los valores de f nunca disminuyen a lo largo de cualquier camino. Resultado: A* no necesita re-abrir nodos cerrados.
+    </div>
+
+    <h3>Ejemplo: 8-puzzle con distancia Manhattan</h3>
+    <p>Manhattan: para cada ficha, sumar la distancia (horizontal + vertical) a su posici&oacute;n meta. Es admisible porque cada ficha necesita al menos esos movimientos.</p>
+
+    <div class="code-block"><span class="cmt"># A* para el 8-puzzle</span>
+<span class="kw">import</span> heapq
+
+<span class="kw">def</span> <span class="fn">manhattan</span>(estado, meta):
+    dist = <span class="str">0</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="str">9</span>):
+        <span class="kw">if</span> estado[i] != <span class="str">0</span>:
+            pos_meta = meta.index(estado[i])
+            dist += abs(i//<span class="str">3</span> - pos_meta//<span class="str">3</span>) + abs(i%<span class="str">3</span> - pos_meta%<span class="str">3</span>)
+    <span class="kw">return</span> dist
+
+<span class="kw">def</span> <span class="fn">a_estrella</span>(inicio, meta):
+    frontera = [(<span class="fn">manhattan</span>(inicio, meta), <span class="str">0</span>, inicio, [])]  <span class="cmt"># (f, g, estado, camino)</span>
+    visitados = set()
+    <span class="kw">while</span> frontera:
+        f, g, estado, camino = heapq.heappop(frontera)
+        <span class="kw">if</span> estado == meta:
+            <span class="kw">return</span> camino + [estado]
+        <span class="kw">if</span> estado <span class="kw">in</span> visitados:
+            <span class="kw">continue</span>
+        visitados.add(estado)
+        <span class="kw">for</span> vecino <span class="kw">in</span> expandir(estado):
+            <span class="kw">if</span> vecino <span class="kw">not in</span> visitados:
+                g_nuevo = g + <span class="str">1</span>
+                f_nuevo = g_nuevo + <span class="fn">manhattan</span>(vecino, meta)
+                heapq.heappush(frontera, (f_nuevo, g_nuevo, vecino, camino + [estado]))</div>
+
+    <div class="callout">
+      <strong>Benchmark:</strong> en puzzles dif&iacute;ciles del 8-puzzle, A* con Manhattan expande ~539 nodos vs. ~7,331 con Hamming. Eso es una reducci&oacute;n del 93% en nodos expandidos. La heur&iacute;stica m&aacute;s informada produce una b&uacute;squeda m&aacute;s eficiente.
+    </div>
+
+    <h3>Algoritmo AO* (grafos AND-OR)</h3>
+    <p>AO* trabaja sobre grafos AND-OR, donde un problema se descompone en subproblemas.</p>
+
+    <div class="concept-row">
+      <div class="concept-card">
+        <h4>Nodos OR</h4>
+        <p>Representan alternativas: basta resolver UNO de los hijos. Similar a la b&uacute;squeda normal donde elegimos qu&eacute; camino seguir.</p>
+      </div>
+      <div class="concept-card t2">
+        <h4>Nodos AND</h4>
+        <p>Representan descomposici&oacute;n: hay que resolver TODOS los hijos. El problema se divide en subproblemas que se resuelven independientemente.</p>
+      </div>
+    </div>
+
+    <p><strong>Proceso de AO*:</strong></p>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-year">Paso 1</div>
+        <div class="tl-text"><strong>Expandir</strong> el nodo m&aacute;s prometedor (menor costo estimado) del grafo soluci&oacute;n parcial.</div>
+      </div>
+      <div class="tl-item gold">
+        <div class="tl-year">Paso 2</div>
+        <div class="tl-text"><strong>Actualizar costos</strong> hacia arriba: si es nodo AND, sumar costos de todos los hijos; si es OR, tomar el m&iacute;nimo.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">Paso 3</div>
+        <div class="tl-text"><strong>Marcar mejor grafo soluci&oacute;n:</strong> trazar el subgrafo que corresponde a las mejores elecciones en nodos OR y todos los hijos en nodos AND.</div>
+      </div>
+      <div class="tl-item deep">
+        <div class="tl-year">Paso 4</div>
+        <div class="tl-text"><strong>Repetir</strong> hasta que el nodo ra&iacute;z est&eacute; resuelto (todos los nodos hoja del grafo soluci&oacute;n son terminales).</div>
+      </div>
+    </div>
+
+    <p><strong>Caso de uso:</strong> problemas que se descomponen naturalmente en subproblemas. Ejemplo: planificar un viaje (reservar vuelo AND reservar hotel AND reservar auto) donde cada subproblema tiene alternativas (OR: vuelo A o vuelo B).</p>
+
+    <h3>Comparaci&oacute;n: A vs A* vs AO*</h3>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Aspecto</th><th>Algoritmo A</th><th>A*</th><th>AO*</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tipo de grafo</strong></td><td>Grafo de estados (OR)</td><td>Grafo de estados (OR)</td><td>Grafo AND-OR</td></tr>
+        <tr><td><strong>Funci&oacute;n de evaluaci&oacute;n</strong></td><td>f(n) = g(n) + h(n)</td><td>f(n) = g(n) + h(n)</td><td>f(n) actualizado por propagaci&oacute;n</td></tr>
+        <tr><td><strong>Restricci&oacute;n de h</strong></td><td>Ninguna</td><td>Admisible: h(n) &le; h*(n)</td><td>Admisible para nodos hoja</td></tr>
+        <tr><td><strong>&Oacute;ptimo</strong></td><td>No garantizado</td><td>S&iacute; (con h admisible)</td><td>S&iacute; (con h admisible)</td></tr>
+        <tr><td><strong>Re-abrir nodos</strong></td><td>Puede necesitar</td><td>No (si h es consistente)</td><td>Actualiza costos hacia arriba</td></tr>
+        <tr><td><strong>Caso de uso</strong></td><td>B&uacute;squeda general</td><td>B&uacute;squeda de camino &oacute;ptimo</td><td>Reducci&oacute;n de problemas</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="callout danger">
+      <strong>No confundir admisibilidad con consistencia.</strong> Admisible = nunca sobreestima (h &le; h*). Consistente = satisface la desigualdad triangular (h(n) &le; c(n,n') + h(n')). Toda heur&iacute;stica consistente es admisible, pero no al rev&eacute;s. En la pr&aacute;ctica, las heur&iacute;sticas m&aacute;s usadas (Manhattan, distancia euclidiana) son ambas.
+    </div>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: Demostraci&oacute;n formal de optimalidad de A*</summary>
+    <div class="deep-content">
+      <p><strong>Teorema (Hart, Nilsson &amp; Raphael, 1968):</strong> si h es admisible y los costos de arco satisfacen c(n,n') &ge; &epsilon; &gt; 0, entonces A* es completo y &oacute;ptimo (la primera meta que expande tiene costo &oacute;ptimo).</p>
+      <p><strong>Prueba por contradicci&oacute;n:</strong></p>
+      <p>1. Supongamos que A* expande un nodo meta s<sub>a</sub> con costo g(s<sub>a</sub>) = C, donde C &gt; C* (el costo &oacute;ptimo).</p>
+      <p>2. Como s<sub>a</sub> es meta: h(s<sub>a</sub>) = 0, por lo que f(s<sub>a</sub>) = g(s<sub>a</sub>) = C.</p>
+      <p>3. Debe existir un camino &oacute;ptimo desde el inicio hasta alguna meta &oacute;ptima con costo C*. Sea s<sub>b</sub> un nodo ancestro de esa meta &oacute;ptima que todav&iacute;a est&aacute; en la lista OPEN (frontera). Al menos uno debe existir porque el camino &oacute;ptimo no ha sido completamente expandido.</p>
+      <p>4. Por admisibilidad de h:</p>
+      <div class="formula">f(s<sub>b</sub>) = g(s<sub>b</sub>) + h(s<sub>b</sub>) &le; g(s<sub>b</sub>) + h*(s<sub>b</sub>) = C*</div>
+      <p>5. Como A* eligi&oacute; expandir s<sub>a</sub> en vez de s<sub>b</sub>, debe ser que f(s<sub>a</sub>) &le; f(s<sub>b</sub>). Entonces:</p>
+      <div class="formula">C = f(s<sub>a</sub>) &le; f(s<sub>b</sub>) &le; C*</div>
+      <p>6. Esto dice C &le; C*, lo cual contradice nuestra suposici&oacute;n de que C &gt; C*. <strong>Contradicci&oacute;n.</strong></p>
+      <p><strong>Nota sobre completitud:</strong> la condici&oacute;n c(n,n') &ge; &epsilon; &gt; 0 es necesaria. Si los costos pueden ser arbitrariamente peque&ntilde;os (tendiendo a 0), A* podr&iacute;a expandir infinitos nodos en un camino de costo finito pero nunca llegar a la meta.</p>
+      <p><em>Fuente: Hart, P. E., Nilsson, N. J., &amp; Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. IEEE Transactions on SSC, 4(2), 100-107.</em></p>
+    </div>
+    </details>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: Consistente vs solo admisible, con contraejemplo</summary>
+    <div class="deep-content">
+      <p><strong>Definici&oacute;n formal de consistencia (monoton&iacute;a):</strong></p>
+      <div class="formula">h(n) &le; c(n, n') + h(n') &nbsp;&nbsp; para todo sucesor n' de n</div>
+      <p>Esto es la <strong>desigualdad triangular</strong> aplicada a la heur&iacute;stica: la estimaci&oacute;n desde n no puede ser mayor que el costo de ir a n' m&aacute;s la estimaci&oacute;n desde n'.</p>
+      <p><strong>Toda heur&iacute;stica consistente es admisible</strong> (prueba por inducci&oacute;n desde la meta): para un nodo a distancia 1 de la meta G, h(n) &le; c(n,G) + h(G) = c(n,G) + 0 = h*(n). Para nodos m&aacute;s lejos, se aplica el mismo argumento inductivamente por el camino &oacute;ptimo.</p>
+      <p><strong>Contraejemplo: admisible pero NO consistente</strong></p>
+      <p>Considere un grafo simple: A &rarr; B &rarr; G, con costos c(A,B)=1, c(B,G)=1. El costo &oacute;ptimo es h*(A)=2, h*(B)=1, h*(G)=0.</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nodo</th><th>h(n)</th><th>h*(n)</th><th>&iquest;h &le; h*?</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td>1.5</td><td>2</td><td>S&iacute; (admisible)</td></tr>
+          <tr><td>B</td><td>1</td><td>1</td><td>S&iacute; (admisible)</td></tr>
+          <tr><td>G</td><td>0</td><td>0</td><td>S&iacute; (admisible)</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Ahora, probemos consistencia del arco A &rarr; B:</p>
+      <div class="formula">h(A) = 1.5 &le; c(A,B) + h(B) = 1 + 1 = 2 &nbsp;&nbsp; &#10004; Consistente aqu&iacute;</div>
+      <p>Pero si cambiamos h(A)=3 (a&uacute;n &le; h*(A)=2... no, 3 &gt; 2, no ser&iacute;a admisible). Usemos otro ejemplo: A &rarr; B &rarr; G con c(A,B)=1, c(B,G)=3. Entonces h*(A)=4, h*(B)=3. Si ponemos h(A)=3, h(B)=1:</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nodo</th><th>h(n)</th><th>h*(n)</th><th>&iquest;Admisible?</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td>3</td><td>4</td><td>S&iacute; (3 &le; 4)</td></tr>
+          <tr><td>B</td><td>1</td><td>3</td><td>S&iacute; (1 &le; 3)</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Verificaci&oacute;n de consistencia para A &rarr; B:</p>
+      <div class="formula">h(A) = 3 &le; c(A,B) + h(B) = 1 + 1 = 2? &nbsp;&nbsp; NO: 3 &gt; 2 &#10008;</div>
+      <p>La heur&iacute;stica es admisible pero <strong>no consistente</strong>. Esto causa que f pueda <em>disminuir</em> al avanzar: f(A) = 0+3 = 3, pero f(B) = 1+1 = 2.</p>
+      <p><strong>Consecuencia pr&aacute;ctica en graph-search:</strong> con heur&iacute;stica solo admisible (no consistente), un nodo podr&iacute;a cerrarse con un g sub&oacute;ptimo. Si luego se descubre un camino mejor, habr&iacute;a que <em>reabrir</em> el nodo (sacarlo de CLOSED y regresarlo a OPEN). Con consistencia, la primera vez que se expande un nodo ya tiene el g &oacute;ptimo, por lo que nunca se necesita reabrir.</p>
+    </div>
+    </details>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: Pattern databases para el 15-puzzle</summary>
+    <div class="deep-content">
+      <p>Las <strong>pattern databases</strong> son una t&eacute;cnica para construir heur&iacute;sticas admisibles extremadamente informadas, propuesta por Culberson &amp; Schaeffer (1998).</p>
+      <p><strong>Idea central:</strong></p>
+      <p>1. <strong>Abstraer el problema:</strong> retener solo un subconjunto de fichas del puzzle y tratar las dem&aacute;s como "comodines". Por ejemplo, en el 15-puzzle, solo rastrear las fichas 1-5 e ignorar las posiciones de 6-15.</p>
+      <p>2. <strong>Resolver el espacio abstracto exhaustivamente:</strong> hacer BFS hacia atr&aacute;s desde la configuraci&oacute;n meta en el espacio abstracto. Esto es factible porque tiene muchos menos estados que el problema original.</p>
+      <p>3. <strong>Almacenar distancias exactas en una tabla:</strong> para cada configuraci&oacute;n abstracta posible, guardar el n&uacute;mero m&iacute;nimo de movimientos para llevar esas fichas a sus posiciones meta.</p>
+      <p>4. <strong>Consultar durante la b&uacute;squeda:</strong> dado un estado concreto del puzzle, proyectar sobre el patr&oacute;n (ignorar fichas no incluidas) y buscar la distancia en la tabla. Este valor es una <strong>cota inferior admisible</strong> del costo real.</p>
+      <p><strong>Combinaci&oacute;n de bases de datos disjuntas:</strong></p>
+      <p>Si dos patrones son <em>disjuntos</em> (no comparten fichas), sus costos se pueden sumar (heur&iacute;stica aditiva) porque los movimientos de un grupo no ayudan al otro. Si se solapan, se toma el m&aacute;ximo.</p>
+      <div class="formula">h(n) = PDB<sub>1</sub>(n) + PDB<sub>2</sub>(n) &nbsp;&nbsp; (si los patrones son disjuntos)</div>
+      <div class="formula">h(n) = max(PDB<sub>1</sub>(n), PDB<sub>2</sub>(n)) &nbsp;&nbsp; (si se solapan)</div>
+      <p><strong>Resultados pr&aacute;cticos:</strong> con pattern databases disjuntas bien elegidas, A* resuelve instancias del 15-puzzle expandiendo <strong>m&aacute;s de 1000x menos nodos</strong> que con Manhattan sola. La heur&iacute;stica de Manhattan para el 15-puzzle promedia ~36; con PDBs combinadas el promedio sube a ~45-55, mucho m&aacute;s cerca del costo real &oacute;ptimo (~53 movimientos en promedio).</p>
+      <p><em>Fuente: Culberson, J. C. &amp; Schaeffer, J. (1998). Pattern databases. Computational Intelligence, 14(3), 318-334.</em></p>
+    </div>
+    </details>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════ TAB 4: MINIMAX ═══════════ -->
+<div class="tab-panel" id="tab-minimax">
+<div class="content">
+  <div class="section">
+    <div class="section-label">Bloque B &middot; Secci&oacute;n 4</div>
+    <h2>Minimax y juegos adversariales</h2>
+    <p>Minimax es el algoritmo fundamental para juegos de dos jugadores con informaci&oacute;n completa y suma cero (lo que uno gana, el otro pierde). Piensa en ajedrez, damas, tic-tac-toe, go.</p>
+
+    <h3>&Aacute;rboles de juego</h3>
+    <p>Un &aacute;rbol de juego modela todas las jugadas posibles alternando entre los dos jugadores. MAX quiere maximizar la utilidad; MIN quiere minimizarla.</p>
+
+    <div class="concept-row">
+      <div class="concept-card">
+        <h4>Jugador MAX</h4>
+        <p>Elige la acci&oacute;n que <strong>maximiza</strong> el valor de utilidad. Busca el resultado m&aacute;s favorable para s&iacute; mismo.</p>
+      </div>
+      <div class="concept-card t2">
+        <h4>Jugador MIN</h4>
+        <p>Elige la acci&oacute;n que <strong>minimiza</strong> el valor de utilidad. Asume que el oponente juega de forma &oacute;ptima (peor caso para MAX).</p>
+      </div>
+    </div>
+
+    <h3>Valor minimax (definici&oacute;n recursiva)</h3>
+    <div class="callout">
+      <strong>minimax(n) =</strong><br>
+      &bull; utilidad(n) si n es nodo terminal<br>
+      &bull; max(minimax(hijo)) para cada hijo de n, si n es turno de MAX<br>
+      &bull; min(minimax(hijo)) para cada hijo de n, si n es turno de MIN
+    </div>
+
+    <h3>Ejemplo: tic-tac-toe (sub&aacute;rbol)</h3>
+    <p>Valores de utilidad: +1 gana X (MAX), -1 gana O (MIN), 0 empate. En un sub&aacute;rbol con 3 jugadas restantes:</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nivel</th><th>Turno</th><th>Valores hijos</th><th>Elige</th></tr></thead>
+      <tbody>
+        <tr><td>Hojas</td><td>-</td><td>+1, 0, -1, +1, 0, 0, -1, +1, 0</td><td>(valores terminales)</td></tr>
+        <tr><td>Nivel 2</td><td>MIN</td><td>min(+1,0,-1)=-1, min(+1,0,0)=0, min(-1,+1,0)=-1</td><td>-1, 0, -1</td></tr>
+        <tr><td>Nivel 1</td><td>MAX</td><td>max(-1, 0, -1) = 0</td><td><strong>0</strong> (elige la rama del empate)</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>Pseudoc&oacute;digo de Minimax</h3>
+    <div class="code-block"><span class="kw">def</span> <span class="fn">minimax</span>(nodo, es_max):
+    <span class="kw">if</span> nodo.es_terminal():
+        <span class="kw">return</span> nodo.utilidad()
+
+    <span class="kw">if</span> es_max:
+        mejor = float(<span class="str">'-inf'</span>)
+        <span class="kw">for</span> hijo <span class="kw">in</span> nodo.hijos():
+            valor = <span class="fn">minimax</span>(hijo, <span class="str">False</span>)
+            mejor = max(mejor, valor)
+        <span class="kw">return</span> mejor
+    <span class="kw">else</span>:
+        mejor = float(<span class="str">'inf'</span>)
+        <span class="kw">for</span> hijo <span class="kw">in</span> nodo.hijos():
+            valor = <span class="fn">minimax</span>(hijo, <span class="str">True</span>)
+            mejor = min(mejor, valor)
+        <span class="kw">return</span> mejor
+
+<span class="cmt"># Complejidad: O(b^d) en tiempo, O(bd) en espacio</span>
+<span class="cmt"># b = factor de ramificaci&oacute;n, d = profundidad del &aacute;rbol</span></div>
+
+    <h3>Poda alfa-beta (Minimax con l&iacute;mite de tiempo)</h3>
+    <p>Alfa-beta elimina ramas del &aacute;rbol que no pueden influir en la decisi&oacute;n final. El resultado es exactamente el mismo que Minimax completo, pero m&aacute;s r&aacute;pido.</p>
+
+    <div class="concept-row">
+      <div class="concept-card">
+        <h4>Alfa (&alpha;)</h4>
+        <p>Mejor valor que MAX puede garantizar hasta ahora en cualquier punto del camino. Empieza en -&infin;. MAX solo actualiza alfa.</p>
+      </div>
+      <div class="concept-card t2">
+        <h4>Beta (&beta;)</h4>
+        <p>Mejor valor que MIN puede garantizar hasta ahora. Empieza en +&infin;. MIN solo actualiza beta.</p>
+      </div>
+      <div class="concept-card t3">
+        <h4>Poda: &alpha; &ge; &beta;</h4>
+        <p>Cuando alfa &ge; beta, se poda el resto de la rama. MAX ya tiene algo mejor en otro lado (alfa), y MIN no lo va a dejar mejorar (beta).</p>
+      </div>
+    </div>
+
+    <div class="code-block"><span class="kw">def</span> <span class="fn">alfa_beta</span>(nodo, alfa, beta, es_max):
+    <span class="kw">if</span> nodo.es_terminal():
+        <span class="kw">return</span> nodo.utilidad()
+
+    <span class="kw">if</span> es_max:
+        valor = float(<span class="str">'-inf'</span>)
+        <span class="kw">for</span> hijo <span class="kw">in</span> nodo.hijos():
+            valor = max(valor, <span class="fn">alfa_beta</span>(hijo, alfa, beta, <span class="str">False</span>))
+            alfa = max(alfa, valor)
+            <span class="kw">if</span> alfa &gt;= beta:
+                <span class="kw">break</span>  <span class="cmt"># poda beta</span>
+        <span class="kw">return</span> valor
+    <span class="kw">else</span>:
+        valor = float(<span class="str">'inf'</span>)
+        <span class="kw">for</span> hijo <span class="kw">in</span> nodo.hijos():
+            valor = min(valor, <span class="fn">alfa_beta</span>(hijo, alfa, beta, <span class="str">True</span>))
+            beta = min(beta, valor)
+            <span class="kw">if</span> alfa &gt;= beta:
+                <span class="kw">break</span>  <span class="cmt"># poda alfa</span>
+        <span class="kw">return</span> valor
+
+<span class="cmt"># Llamada inicial:</span>
+<span class="cmt"># mejor_valor = alfa_beta(raiz, -inf, +inf, True)</span>
+<span class="cmt"># Mejor caso: O(b^(d/2)) -- poda perfecta</span>
+<span class="cmt"># Peor caso: O(b^d) -- sin poda (orden desfavorable)</span></div>
+
+    <div class="callout">
+      <strong>Ahorro de alfa-beta:</strong> en el mejor caso (nodos ordenados de mejor a peor), la poda reduce de O(b<sup>d</sup>) a O(b<sup>d/2</sup>). Esto equivale a duplicar la profundidad explorable con el mismo presupuesto de tiempo. En ajedrez: sin poda se ven ~4 jugadas; con poda ~8.
+    </div>
+
+    <h3>Aprendizaje autom&aacute;tico en Minimax</h3>
+    <p>Cuando el &aacute;rbol completo es demasiado grande (ajedrez: ~10<sup>47</sup> nodos, Go: ~10<sup>170</sup>), se combinan Minimax con t&eacute;cnicas de ML:</p>
+
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>T&eacute;cnica</th><th>Idea</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Funci&oacute;n de evaluaci&oacute;n aprendida</strong></td><td>Red neuronal que estima utilidad de posiciones no terminales. Reemplaza la b&uacute;squeda completa hasta hojas.</td><td>Deep Blue usaba funci&oacute;n de evaluaci&oacute;n con pesos ajustados por humanos</td></tr>
+        <tr><td><strong>MCTS (Monte Carlo Tree Search)</strong></td><td>Simulaciones aleatorias (playouts) desde un nodo para estimar su valor. No necesita heur&iacute;stica: usa estad&iacute;stica de muchas partidas simuladas.</td><td>AlphaGo (2016) us&oacute; MCTS + redes neuronales para vencer a Lee Sedol</td></tr>
+        <tr><td><strong>Redes neuronales para evaluaci&oacute;n</strong></td><td>Entrenadas con millones de partidas (self-play). La red predice probabilidad de ganar y pol&iacute;tica de jugada.</td><td>AlphaZero: red policy + red value, entrenada 100% por self-play sin datos humanos</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>Comparaci&oacute;n</h3>
+    <div class="vs-strip">
+      <div class="vs-col">
+        <h4>Minimax puro</h4>
+        <p><strong>Garant&iacute;a:</strong> jugada &oacute;ptima</p>
+        <p><strong>L&iacute;mite:</strong> solo juegos peque&ntilde;os</p>
+        <p><strong>Complejidad:</strong> O(b<sup>d</sup>)</p>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-col">
+        <h4>Alfa-beta</h4>
+        <p><strong>Garant&iacute;a:</strong> misma jugada que Minimax</p>
+        <p><strong>Mejora:</strong> poda ramas in&uacute;tiles</p>
+        <p><strong>Complejidad:</strong> O(b<sup>d/2</sup>) mejor caso</p>
+      </div>
+    </div>
+
+    <div class="vs-strip">
+      <div class="vs-col">
+        <h4>Alfa-beta + evaluaci&oacute;n</h4>
+        <p><strong>Garant&iacute;a:</strong> aproximada</p>
+        <p><strong>Enfoque:</strong> b&uacute;squeda + heur&iacute;stica aprendida</p>
+        <p><strong>Ejemplo:</strong> Deep Blue (ajedrez)</p>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-col">
+        <h4>MCTS + redes neuronales</h4>
+        <p><strong>Garant&iacute;a:</strong> estad&iacute;stica (converge)</p>
+        <p><strong>Enfoque:</strong> simulaci&oacute;n + aprendizaje</p>
+        <p><strong>Ejemplo:</strong> AlphaGo, AlphaZero</p>
+      </div>
+    </div>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: Complejidad de alfa-beta, los 3 casos</summary>
+    <div class="deep-content">
+      <p>La eficiencia de la poda alfa-beta depende cr&iacute;ticamente del <strong>orden en que se exploran los nodos</strong>.</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Caso</th><th>Complejidad</th><th>Hojas evaluadas</th><th>Condici&oacute;n</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Peor caso</strong></td><td>O(b<sup>d</sup>)</td><td>b<sup>d</sup></td><td>Orden terrible: los peores movimientos se eval&uacute;an primero. No se poda nada y el resultado es id&eacute;ntico a minimax completo.</td></tr>
+          <tr><td><strong>Mejor caso</strong></td><td>O(b<sup>d/2</sup>)</td><td>b<sup>&lfloor;d/2&rfloor;</sup> + b<sup>&lceil;d/2&rceil;</sup> - 1</td><td>Orden perfecto: el mejor movimiento siempre se eval&uacute;a primero en cada nodo. La poda es m&aacute;xima.</td></tr>
+          <tr><td><strong>Caso promedio</strong></td><td>O(b<sup>0.75d</sup>)</td><td>&asymp; b<sup>0.75d</sup></td><td>Valores de hoja aleatorios, sin ordenamiento especial. Factor de ramificaci&oacute;n efectivo &asymp; b<sup>0.75</sup>.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><strong>Interpretaci&oacute;n pr&aacute;ctica:</strong> en el mejor caso, alfa-beta permite buscar al <em>doble de profundidad</em> con el mismo presupuesto computacional. Si sin poda puedes ver 6 jugadas, con poda perfecta puedes ver 12. En la pr&aacute;ctica, t&eacute;cnicas de ordenamiento como killer moves, history heuristic y tablas de transposici&oacute;n acercan el rendimiento real al mejor caso.</p>
+      <p><em>Fuente: Knuth, D. E. &amp; Moore, R. W. (1975). An analysis of alpha-beta pruning. Artificial Intelligence, 6(4), 293-326.</em></p>
+    </div>
+    </details>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: MCTS, las 4 fases en detalle</summary>
+    <div class="deep-content">
+      <p><strong>Monte Carlo Tree Search</strong> construye un &aacute;rbol de b&uacute;squeda de manera asim&eacute;trica, enfocando esfuerzo en las ramas m&aacute;s prometedoras. Cada iteraci&oacute;n tiene 4 fases:</p>
+      <p><strong>1. Selecci&oacute;n:</strong> desde la ra&iacute;z, descender por el &aacute;rbol eligiendo en cada nodo el hijo con mayor valor UCB1 (Upper Confidence Bound):</p>
+      <div class="formula">UCB1 = X&#772;<sub>i</sub> + C &middot; &radic;(ln N / n<sub>i</sub>)</div>
+      <p>Donde X&#772;<sub>i</sub> es la tasa de victorias promedio del hijo i, N es el n&uacute;mero de visitas del padre, n<sub>i</sub> las visitas del hijo, y C es una constante de exploraci&oacute;n (t&iacute;picamente &radic;2). El primer t&eacute;rmino <em>explota</em> (favorece hijos exitosos); el segundo <em>explora</em> (favorece hijos poco visitados).</p>
+      <p><strong>2. Expansi&oacute;n:</strong> al llegar a un nodo con hijos no visitados, agregar uno (o m&aacute;s) hijos nuevos al &aacute;rbol.</p>
+      <p><strong>3. Simulaci&oacute;n (rollout):</strong> desde el nodo reci&eacute;n expandido, jugar una partida completa hasta un estado terminal usando una pol&iacute;tica r&aacute;pida (puede ser totalmente aleatoria o guiada por heur&iacute;sticas ligeras). El resultado es una se&ntilde;al de victoria/derrota/empate.</p>
+      <p><strong>4. Retropropagaci&oacute;n (backpropagation):</strong> actualizar las estad&iacute;sticas (n&uacute;mero de visitas y victorias acumuladas) de todos los nodos en el camino desde el nodo expandido hasta la ra&iacute;z.</p>
+      <p>Se repiten miles o millones de iteraciones. Al final, se elige la jugada correspondiente al hijo de la ra&iacute;z con m&aacute;s visitas (no mayor promedio, para evitar ruido estad&iacute;stico).</p>
+      <p><strong>Ventaja clave:</strong> MCTS no necesita funci&oacute;n de evaluaci&oacute;n heur&iacute;stica: estima valores por muestreo estad&iacute;stico. Esto lo hace aplicable a juegos donde dise&ntilde;ar una heur&iacute;stica es dif&iacute;cil (como Go).</p>
+      <p><em>Fuentes: Browne, C. B. et al. (2012). A survey of Monte Carlo tree search methods. IEEE TCIAIG. Kocsis, L. &amp; Szepesv&aacute;ri, C. (2006). Bandit based Monte-Carlo planning. ECML.</em></p>
+    </div>
+    </details>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: AlphaGo vs Deep Blue</summary>
+    <div class="deep-content">
+      <p>Dos hitos de la IA en juegos que representan filosof&iacute;as radicalmente diferentes:</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Aspecto</th><th>Deep Blue (1997)</th><th>AlphaGo (2016) / AlphaZero (2017)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Juego</strong></td><td>Ajedrez</td><td>Go (y despu&eacute;s ajedrez, shogi)</td></tr>
+          <tr><td><strong>Algoritmo base</strong></td><td>Minimax + alfa-beta</td><td>MCTS guiado por redes neuronales</td></tr>
+          <tr><td><strong>Evaluaci&oacute;n</strong></td><td>Funci&oacute;n dise&ntilde;ada a mano por gran maestros. ~8,000 caracter&iacute;sticas ponderadas por expertos humanos.</td><td>Red neuronal profunda (value network) entrenada para predecir el ganador desde una posici&oacute;n.</td></tr>
+          <tr><td><strong>Selecci&oacute;n de jugadas</strong></td><td>B&uacute;squeda exhaustiva: explorar todas las ramas hasta cierta profundidad (~12 jugadas), podar con alfa-beta.</td><td>Policy network sugiere qu&eacute; jugadas explorar; MCTS enfoca la b&uacute;squeda en las m&aacute;s prometedoras.</td></tr>
+          <tr><td><strong>Velocidad bruta</strong></td><td>~200 millones de posiciones/segundo (hardware especializado)</td><td>~100,000 posiciones/segundo (pero cada evaluaci&oacute;n es mucho m&aacute;s rica)</td></tr>
+          <tr><td><strong>Entrenamiento</strong></td><td>Ajuste manual de par&aacute;metros + peque&ntilde;o aprendizaje autom&aacute;tico</td><td>Aprendizaje supervisado (partidas humanas) + reinforcement learning (self-play)</td></tr>
+          <tr><td><strong>AlphaZero</strong></td><td colspan="2">Elimin&oacute; el aprendizaje supervisado: 100% self-play + MCTS. En 4 horas de entrenamiento super&oacute; a Stockfish (ajedrez) y en 8 horas a AlphaGo Lee (Go).</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><strong>Diferencia fundamental:</strong> en Deep Blue, la evaluaci&oacute;n y la selecci&oacute;n de movimientos son <em>dise&ntilde;adas por humanos</em>. En AlphaGo/AlphaZero, son <em>aprendidas</em> por la red neuronal. El conocimiento emerge del entrenamiento, no de la programaci&oacute;n expl&iacute;cita.</p>
+      <p><em>Fuentes: Silver, D. et al. (2016). Mastering the game of Go with deep neural networks and tree search. Nature, 529. Silver, D. et al. (2017). Mastering the game of Go without human knowledge. Nature, 550.</em></p>
+    </div>
+    </details>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: Juegos de informaci&oacute;n imperfecta</summary>
+    <div class="deep-content">
+      <p>Minimax y alfa-beta asumen <strong>informaci&oacute;n perfecta</strong>: ambos jugadores ven el estado completo del juego (como en ajedrez o Go). Pero muchos juegos reales tienen <strong>informaci&oacute;n imperfecta</strong>: cartas ocultas en p&oacute;ker, fichas boca abajo en domin&oacute;, la mano del oponente en bridge.</p>
+      <p><strong>Problema:</strong> no se puede construir un &aacute;rbol de juego completo porque no conocemos el estado real. En su lugar, se trabaja con <strong>conjuntos de informaci&oacute;n</strong> (information sets): agrupaciones de estados que son indistinguibles para un jugador.</p>
+      <p><strong>T&eacute;cnicas principales:</strong></p>
+      <p>1. <strong>Abstracci&oacute;n de informaci&oacute;n:</strong> agrupar situaciones similares para reducir el tama&ntilde;o del &aacute;rbol de juego.</p>
+      <p>2. <strong>CFR (Counterfactual Regret Minimization):</strong> algoritmo iterativo que converge a un equilibrio de Nash. En cada iteraci&oacute;n, calcula el "arrepentimiento" de no haber jugado cada acci&oacute;n y ajusta la estrategia proporcionalmente.</p>
+      <p>3. <strong>Estrategias mixtas:</strong> en vez de una acci&oacute;n determinista, el jugador &oacute;ptimo aleatoriza sus jugadas para ser impredecible (como en piedra-papel-tijera: la estrategia &oacute;ptima es 1/3 cada una).</p>
+      <p><strong>Caso emblem&aacute;tico, Pluribus (Meta AI, 2019):</strong> primer programa en vencer a profesionales de p&oacute;ker multijugador (Texas Hold'em 6 jugadores). Us&oacute; CFR con abstracci&oacute;n + b&uacute;squeda limitada en tiempo real. A diferencia de AlphaGo, no us&oacute; redes neuronales profundas: la arquitectura estaba basada en teor&iacute;a de juegos cl&aacute;sica escalada con computaci&oacute;n moderna.</p>
+      <p><em>Fuente: Brown, N. &amp; Sandholm, T. (2019). Superhuman AI for multiplayer poker. Science, 365(6456).</em></p>
+    </div>
+    </details>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════ TAB 5: ALGORITMOS GENÉTICOS ═══════════ -->
+<div class="tab-panel" id="tab-geneticos">
+<div class="content">
+  <div class="section">
+    <div class="section-label">Bloque B &middot; Secci&oacute;n 5</div>
+    <h2>Algoritmos gen&eacute;ticos en b&uacute;squeda</h2>
+    <p>Los algoritmos gen&eacute;ticos (AG) son metaheur&iacute;sticas inspiradas en la evoluci&oacute;n biol&oacute;gica. Una poblaci&oacute;n de soluciones candidatas evoluciona generaci&oacute;n tras generaci&oacute;n por selecci&oacute;n, cruce y mutaci&oacute;n.</p>
+
+    <h3>Representaci&oacute;n</h3>
+    <div class="concept-row">
+      <div class="concept-card">
+        <h4>Cromosoma</h4>
+        <p>Una soluci&oacute;n candidata codificada como cadena (binaria, entera, real, permutaci&oacute;n). Cada cromosoma es un "individuo" de la poblaci&oacute;n.</p>
+      </div>
+      <div class="concept-card t2">
+        <h4>Gen</h4>
+        <p>Cada posici&oacute;n dentro del cromosoma. En el TSP, cada gen es una ciudad. En las 8-reinas, cada gen es la columna de una reina.</p>
+      </div>
+      <div class="concept-card t3">
+        <h4>Poblaci&oacute;n</h4>
+        <p>Conjunto de individuos (soluciones) que coexisten en una generaci&oacute;n. T&iacute;picamente 30-200 individuos. M&aacute;s poblaci&oacute;n = m&aacute;s diversidad, pero m&aacute;s costo computacional.</p>
+      </div>
+      <div class="concept-card t4">
+        <h4>Aptitud (fitness)</h4>
+        <p>Funci&oacute;n que eval&uacute;a qu&eacute; tan buena es una soluci&oacute;n. Mayor aptitud = mayor probabilidad de ser seleccionado para reproducci&oacute;n.</p>
+      </div>
+    </div>
+
+    <h3>M&eacute;todos de selecci&oacute;n</h3>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>M&eacute;todo</th><th>Mecanismo</th><th>Ventaja</th><th>Desventaja</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Torneo</strong></td><td>Se eligen k individuos al azar; gana el de mayor aptitud. Se repite para cada padre.</td><td>Simple, ajustable (k controla presi&oacute;n selectiva)</td><td>Con k grande, pierde diversidad r&aacute;pido</td></tr>
+        <tr><td><strong>Ruleta</strong></td><td>Probabilidad de selecci&oacute;n proporcional a la aptitud. Girar la "ruleta" para elegir.</td><td>Los mejores tienen m&aacute;s chance pero no monopolizan</td><td>Sensible a escala: un individuo muy bueno domina</td></tr>
+        <tr><td><strong>Por rango</strong></td><td>Se ordenan por aptitud y la probabilidad depende del rango, no del valor absoluto.</td><td>Insensible a la escala de aptitud</td><td>Pierde informaci&oacute;n: diferencias de aptitud no se reflejan</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>Operadores gen&eacute;ticos</h3>
+    <h4>Cruce (crossover)</h4>
+    <p>Combina material gen&eacute;tico de dos padres para crear hijos. Es el motor principal de la b&uacute;squeda: explota las buenas soluciones existentes.</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tipo</th><th>Mecanismo</th><th>Ejemplo (padre: ABCDE, madre: FGHIJ)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Un punto</strong></td><td>Corte en posici&oacute;n aleatoria; hijo = izq. de padre + der. de madre</td><td>Corte en 3: ABC|IJ</td></tr>
+        <tr><td><strong>Dos puntos</strong></td><td>Dos cortes; hijo = extremos de padre + centro de madre</td><td>Cortes en 1,4: A|GHI|E</td></tr>
+        <tr><td><strong>Uniforme</strong></td><td>Cada gen se elige del padre o la madre con probabilidad 0.5</td><td>AGCIE (cada posici&oacute;n al azar)</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h4>Mutaci&oacute;n</h4>
+    <p>Introduce cambios aleatorios peque&ntilde;os. Previene la convergencia prematura y mantiene diversidad gen&eacute;tica.</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tipo</th><th>Mecanismo</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Bit-flip</strong></td><td>Cambiar un bit de 0 a 1 o viceversa</td><td>Codificaci&oacute;n binaria</td></tr>
+        <tr><td><strong>Swap</strong></td><td>Intercambiar dos genes de posici&oacute;n</td><td>Permutaciones (TSP, n-reinas)</td></tr>
+        <tr><td><strong>Scramble</strong></td><td>Reordenar aleatoriamente un segmento del cromosoma</td><td>Permutaciones con diversidad alta</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>Elitismo</h3>
+    <p>Los mejores k individuos de la generaci&oacute;n actual pasan directamente a la siguiente sin modificaci&oacute;n. Garantiza que la mejor soluci&oacute;n encontrada nunca se pierda. T&iacute;picamente k = 1 o 2.</p>
+
+    <h3>Cu&aacute;ndo usar AG</h3>
+    <div class="callout">
+      <strong>Los AG brillan en:</strong> espacios de b&uacute;squeda enormes donde la b&uacute;squeda exhaustiva es imposible, problemas combinatorios (TSP, scheduling, empaquetado), optimizaci&oacute;n multiobjetivo, y problemas donde no hay gradiente disponible. NO son buenos cuando existe un algoritmo exacto eficiente o cuando la funci&oacute;n de aptitud es muy costosa de evaluar.
+    </div>
+
+    <h3>Ejemplo: el problema de las 8 reinas</h3>
+    <p>Colocar 8 reinas en un tablero 8x8 sin que ninguna par se ataque. Representaci&oacute;n: permutaci&oacute;n [c0, c1, ..., c7] donde ci = columna de la reina en la fila i. Esto elimina conflictos de fila y columna por construcci&oacute;n; solo hay que verificar diagonales.</p>
+
+    <div class="code-block"><span class="cmt"># Algoritmo gen&eacute;tico para 8-reinas</span>
+<span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">aptitud</span>(individuo):
+    <span class="cmt"># Contar pares NO en conflicto (max = 28)</span>
+    conflictos = <span class="str">0</span>
+    n = len(individuo)
+    <span class="kw">for</span> i <span class="kw">in</span> range(n):
+        <span class="kw">for</span> j <span class="kw">in</span> range(i+<span class="str">1</span>, n):
+            <span class="kw">if</span> abs(individuo[i] - individuo[j]) == abs(i - j):
+                conflictos += <span class="str">1</span>
+    <span class="kw">return</span> <span class="str">28</span> - conflictos
+
+<span class="kw">def</span> <span class="fn">seleccion_torneo</span>(poblacion, k=<span class="str">3</span>):
+    torneo = random.sample(poblacion, k)
+    <span class="kw">return</span> max(torneo, key=aptitud)
+
+<span class="kw">def</span> <span class="fn">cruce_ox</span>(p1, p2):
+    <span class="cmt"># Order Crossover (OX) para permutaciones</span>
+    n = len(p1)
+    a, b = sorted(random.sample(range(n), <span class="str">2</span>))
+    hijo = [<span class="str">None</span>] * n
+    hijo[a:b] = p1[a:b]
+    ptr = b
+    <span class="kw">for</span> gen <span class="kw">in</span> p2[b:] + p2[:b]:
+        <span class="kw">if</span> gen <span class="kw">not in</span> hijo:
+            hijo[ptr % n] = gen
+            ptr += <span class="str">1</span>
+    <span class="kw">return</span> hijo
+
+<span class="kw">def</span> <span class="fn">mutar_swap</span>(individuo, prob=<span class="str">0.1</span>):
+    <span class="kw">if</span> random.random() &lt; prob:
+        i, j = random.sample(range(len(individuo)), <span class="str">2</span>)
+        individuo[i], individuo[j] = individuo[j], individuo[i]
+    <span class="kw">return</span> individuo
+
+<span class="cmt"># Bucle principal</span>
+poblacion = [random.sample(range(<span class="str">8</span>), <span class="str">8</span>) <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="str">50</span>)]
+<span class="kw">for</span> gen <span class="kw">in</span> range(<span class="str">100</span>):
+    poblacion.sort(key=aptitud, reverse=<span class="str">True</span>)
+    <span class="kw">if</span> aptitud(poblacion[<span class="str">0</span>]) == <span class="str">28</span>:
+        print(f<span class="str">"Solucion en generacion {gen}: {poblacion[0]}"</span>)
+        <span class="kw">break</span>
+    nueva = poblacion[:<span class="str">2</span>]  <span class="cmt"># elitismo</span>
+    <span class="kw">while</span> len(nueva) &lt; <span class="str">50</span>:
+        p1 = seleccion_torneo(poblacion)
+        p2 = seleccion_torneo(poblacion)
+        hijo = cruce_ox(p1, p2)
+        hijo = mutar_swap(hijo)
+        nueva.append(hijo)
+    poblacion = nueva</div>
+
+    <h3>Criterios de convergencia</h3>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Criterio</th><th>Descripci&oacute;n</th><th>Cu&aacute;ndo usarlo</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Aptitud objetivo</strong></td><td>Parar cuando se alcanza un fitness m&iacute;nimo aceptable</td><td>Cuando se conoce el &oacute;ptimo (8-reinas: 28)</td></tr>
+        <tr><td><strong>M&aacute;ximo de generaciones</strong></td><td>L&iacute;mite fijo de iteraciones</td><td>Cuando no se conoce el &oacute;ptimo y se necesita limitar tiempo</td></tr>
+        <tr><td><strong>Meseta de aptitud</strong></td><td>Parar si la mejor aptitud no mejora en N generaciones</td><td>Detecci&oacute;n de convergencia o estancamiento</td></tr>
+        <tr><td><strong>Diversidad m&iacute;nima</strong></td><td>Parar si la poblaci&oacute;n se vuelve demasiado homog&eacute;nea</td><td>Evitar desperdicio de c&oacute;mputo en convergencia prematura</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="callout warn">
+      <strong>Tasa de mutaci&oacute;n:</strong> un par&aacute;metro cr&iacute;tico. Muy baja (&lt;1%) y el AG converge prematuramente a un &oacute;ptimo local. Muy alta (&gt;30%) y se convierte en b&uacute;squeda aleatoria. Rango t&iacute;pico: 1-10%. Ajustar seg&uacute;n el problema.
+    </div>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: Schema Theorem de Holland</summary>
+    <div class="deep-content">
+      <p>El <strong>Schema Theorem</strong> (Teorema de los Esquemas) de John Holland (1975) es el resultado te&oacute;rico fundacional de los algoritmos gen&eacute;ticos.</p>
+      <p><strong>Enunciado informal:</strong> "Los esquemas cortos, de bajo orden y con aptitud por encima del promedio crecen exponencialmente en la poblaci&oacute;n."</p>
+      <p><strong>Definiciones:</strong></p>
+      <p>Un <em>esquema</em> es un patr&oacute;n con comodines. Por ejemplo, en cromosomas binarios de 5 bits, el esquema 1**0* representa todos los individuos que empiezan con 1 y tienen 0 en la cuarta posici&oacute;n: {10000, 10001, 10100, 10101, 11000, ...}.</p>
+      <p><strong>Orden</strong> del esquema: n&uacute;mero de posiciones fijas (no comod&iacute;n). <strong>Longitud definidora</strong>: distancia entre la primera y &uacute;ltima posici&oacute;n fija.</p>
+      <p><strong>El teorema dice:</strong> esquemas de orden bajo (pocas posiciones fijas) y longitud definidora corta (compactos) que tienen aptitud superior al promedio de la poblaci&oacute;n reciben exponencialmente m&aacute;s copias en la siguiente generaci&oacute;n. Son "building blocks" que el AG combina.</p>
+      <p><strong>Limitaciones y controversia:</strong></p>
+      <p>El teorema es una <em>desigualdad</em>, no una igualdad: solo predice una cota inferior de la frecuencia del esquema. Ignora la creaci&oacute;n de nuevos esquemas por crossover y mutaci&oacute;n. Asume poblaci&oacute;n infinita. Solo predice una generaci&oacute;n hacia adelante. Por estas razones, el Schema Theorem es considerado m&aacute;s una justificaci&oacute;n intuitiva que una explicaci&oacute;n completa de por qu&eacute; funcionan los AG. Es un caso especial de la <em>ecuaci&oacute;n de Price</em> de gen&eacute;tica poblacional.</p>
+      <p><em>Fuente: Holland, J. H. (1975). Adaptation in Natural and Artificial Systems. University of Michigan Press.</em></p>
+    </div>
+    </details>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: No Free Lunch Theorem</summary>
+    <div class="deep-content">
+      <p>El <strong>No Free Lunch Theorem (NFL)</strong> de Wolpert &amp; Macready (1997) establece un l&iacute;mite fundamental para todos los algoritmos de optimizaci&oacute;n, incluyendo los AG.</p>
+      <p><strong>Enunciado:</strong> promediando sobre <em>todas</em> las funciones objetivo posibles, cualquier par de algoritmos de optimizaci&oacute;n tiene exactamente el mismo rendimiento.</p>
+      <p>Esto significa que <strong>no existe un algoritmo de optimizaci&oacute;n universalmente superior</strong>. Si un algoritmo A es mejor que B en una clase de problemas, entonces B necesariamente es mejor que A en otra clase.</p>
+      <p><strong>Implicaciones pr&aacute;cticas:</strong></p>
+      <p>1. No tiene sentido comparar AG vs. Simulated Annealing vs. PSO (Particle Swarm Optimization) "en general". El rendimiento depende del sesgo del algoritmo hacia la estructura espec&iacute;fica del problema.</p>
+      <p>2. Los AG funcionan bien cuando la representaci&oacute;n discreta y el crossover preservan <em>building blocks</em> &uacute;tiles (esquemas cortos de buena aptitud que se pueden combinar).</p>
+      <p>3. Elegir el algoritmo correcto requiere <em>conocer algo sobre el problema</em>: la estructura del paisaje de aptitud, si hay building blocks aprovechables, si el espacio es continuo o discreto, etc.</p>
+      <p><strong>Lo que NFL NO dice:</strong> no dice que todos los algoritmos sean iguales en problemas reales. Los problemas reales no son "todas las funciones posibles": tienen estructura (suavidad, localidad, simetr&iacute;as) que los algoritmos bien elegidos explotan.</p>
+      <p><em>Fuente: Wolpert, D. H. &amp; Macready, W. G. (1997). No free lunch theorems for optimization. IEEE Trans. Evolutionary Computation, 1(1), 67-82.</em></p>
+    </div>
+    </details>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: Convergencia prematura</summary>
+    <div class="deep-content">
+      <p>La <strong>convergencia prematura</strong> ocurre cuando la diversidad gen&eacute;tica de la poblaci&oacute;n colapsa hacia un &oacute;ptimo local antes de haber explorado suficiente del espacio global. Es el problema m&aacute;s com&uacute;n en AG mal configurados.</p>
+      <p><strong>&iquest;Por qu&eacute; sucede?</strong> Un individuo con aptitud mucho mayor que el resto domina la selecci&oacute;n (especialmente con ruleta). Sus genes se propagan r&aacute;pidamente, y en pocas generaciones toda la poblaci&oacute;n se parece a &eacute;l. El crossover entre individuos casi id&eacute;nticos no genera nada nuevo, y la mutaci&oacute;n sola no basta para escapar.</p>
+      <p><strong>T&eacute;cnicas de prevenci&oacute;n:</strong></p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>T&eacute;cnica</th><th>Mecanismo</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Fitness sharing</strong></td><td>Reducir la aptitud de individuos en regiones densas del espacio. Si muchos individuos son similares, comparten la aptitud entre ellos, incentivando la exploraci&oacute;n de regiones vac&iacute;as.</td></tr>
+          <tr><td><strong>Crowding</strong></td><td>Al insertar un nuevo individuo, reemplazar al m&aacute;s similar en la poblaci&oacute;n (no al peor). Mantiene nichos diversos.</td></tr>
+          <tr><td><strong>Niching</strong></td><td>Mantener m&uacute;ltiples subpoblaciones en distintas regiones del espacio, cada una convergiendo a su propio &oacute;ptimo local.</td></tr>
+          <tr><td><strong>Poblaciones estructuradas</strong></td><td>Organizar individuos en una topolog&iacute;a (anillo, grid) donde solo interact&uacute;an con vecinos. La diversidad se mantiene geogr&aacute;ficamente.</td></tr>
+          <tr><td><strong>Mutaci&oacute;n adaptativa</strong></td><td>Incrementar la tasa de mutaci&oacute;n autom&aacute;ticamente cuando se detecta estancamiento (la aptitud promedio no mejora).</td></tr>
+          <tr><td><strong>Reinicio</strong></td><td>Si la poblaci&oacute;n converge prematuramente, guardar el mejor individuo y regenerar el resto aleatoriamente.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><strong>Indicador pr&aacute;ctico:</strong> monitorear la diversidad gen&eacute;tica (por ejemplo, distancia promedio entre individuos). Si cae dr&aacute;sticamente pero la aptitud a&uacute;n no es buena, hay convergencia prematura.</p>
+    </div>
+    </details>
+
+    <details class="deep-dive">
+    <summary>&#x1F52C; Profundizaci&oacute;n: Conexiones con Ciencia de Datos</summary>
+    <div class="deep-content">
+      <p>Los conceptos de b&uacute;squeda del Bloque B no son solo acad&eacute;micos: aparecen directamente en herramientas modernas de ciencia de datos e IA.</p>
+      <p><strong>A* en selecci&oacute;n de caracter&iacute;sticas (feature selection):</strong></p>
+      <p>El espacio de estados es el conjunto potencia de features. Cada estado es un subconjunto de variables seleccionadas. g(n) puede ser el costo de evaluaci&oacute;n del modelo (tiempo de entrenamiento acumulado), y h(n) una cota inferior del error residual. A* con una buena heur&iacute;stica encuentra el subconjunto &oacute;ptimo sin evaluar todos los 2<sup>p</sup> subconjuntos posibles.</p>
+      <p><strong>Beam search en NLP y LLMs:</strong></p>
+      <p>Cuando un modelo de lenguaje genera texto, la b&uacute;squeda de la mejor secuencia de tokens es un problema de b&uacute;squeda. <em>Beam search</em> es esencialmente una b&uacute;squeda informada de ancho limitado (beam width k): en cada paso, mantiene los k caminos parciales m&aacute;s prometedores seg&uacute;n la log-probabilidad del modelo. Es la versi&oacute;n pr&aacute;ctica de BFS acotada con heur&iacute;stica = probabilidad del modelo.</p>
+      <p><strong>AG para hiperpar&aacute;metros y AutoML:</strong></p>
+      <p>Herramientas como TPOT usan programaci&oacute;n gen&eacute;tica (una extensi&oacute;n de AG) para evolucionar pipelines completos de ML: selecci&oacute;n de features + preprocesamiento + modelo + hiperpar&aacute;metros. Cada "cromosoma" es un pipeline completo; la aptitud es la precisi&oacute;n por validaci&oacute;n cruzada. El crossover combina componentes de pipelines exitosos.</p>
+      <p><strong>Espacio de estados = espacio de hip&oacute;tesis:</strong></p>
+      <p>En machine learning, el "estado" puede ser un modelo o un subconjunto de caracter&iacute;sticas. La b&uacute;squeda (A*, beam, AG) explora el espacio de hip&oacute;tesis de la misma forma que explora estados en un puzzle. La funci&oacute;n de aptitud/heur&iacute;stica es la m&eacute;trica de evaluaci&oacute;n del modelo (accuracy, F1, AUC).</p>
+    </div>
+    </details>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════ TAB 6: DEFENSA ═══════════ -->
+<div class="tab-panel" id="tab-defensa">
+<div class="content">
+  <div class="section">
+    <div class="section-label">Bloque B &middot; Preparaci&oacute;n para defensa</div>
+    <h2>Preguntas frecuentes de defensa</h2>
+    <p>Preguntas que podr&iacute;an hacer Haro o los compa&ntilde;eros durante la presentaci&oacute;n del Bloque B. Haz clic para ver la respuesta.</p>
+    <div id="qaContainer"></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════ TAB 7: QUIZ ═══════════ -->
+<div class="tab-panel" id="tab-quiz">
+<div class="content">
+  <div class="section">
+    <div class="section-label">Bloque B &middot; Auto-evaluaci&oacute;n</div>
+    <h2>Quiz r&aacute;pido (20 preguntas)</h2>
+    <p>Contesta las 20 preguntas para verificar que dominas el contenido del Bloque B. Al final ver&aacute;s tu puntuaci&oacute;n.</p>
+    <div id="quizContainer"></div>
+    <div id="quizScore"></div>
+    <div style="text-align:center;"><button id="resetQuizBtn" onclick="resetQuiz()">Reiniciar quiz</button></div>
+  </div>
+</div>
+</div>
+
+<footer>
+  LCDN4INT10 Inteligencia Artificial &middot; Universidad Nacional Rosario Castellanos &middot; Septiembre 2026
+</footer>
+
+<script>
+// ── Tab switching ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Defense Q&A ──
+const qaData = [
+  { q: '&iquest;Cu&aacute;ndo usar b&uacute;squeda hacia adelante vs hacia atr&aacute;s?', a: '<p><strong>Hacia adelante (forward):</strong> cuando la meta no est&aacute; bien definida o hay m&uacute;ltiples metas posibles. Se parte del estado inicial y se aplican operadores en la direcci&oacute;n natural. Ejemplo: explorar jugadas en un juego.</p><p><strong>Hacia atr&aacute;s (backward):</strong> cuando la meta es clara y el inicio es amplio. Se parte de la meta y se trabaja hacia atr&aacute;s con precondiciones. Ejemplo: demostraci&oacute;n de teoremas.</p><p><strong>Bidireccional:</strong> cuando ambos extremos son conocidos. Reduce de O(b<sup>d</sup>) a O(b<sup>d/2</sup>). Ejemplo: navegaci&oacute;n punto a punto.</p>' },
+  { q: '&iquest;Qu&eacute; diferencia A de A*?', a: '<p><strong>Algoritmo A</strong> usa f(n) = g(n) + h(n) con cualquier heur&iacute;stica, sin restricciones. No garantiza optimalidad.</p><p><strong>A*</strong> es A con una restricci&oacute;n crucial: la heur&iacute;stica debe ser <strong>admisible</strong> (nunca sobreestima: h(n) &le; h*(n)). Esta restricci&oacute;n garantiza que A* encuentra la soluci&oacute;n &oacute;ptima.</p><p>La diferencia es solo la restricci&oacute;n sobre h. Si h es admisible, A se convierte autom&aacute;ticamente en A*.</p>' },
+  { q: '&iquest;Qu&eacute; es un grafo AND-OR y cu&aacute;ndo se usa AO*?', a: '<p>Un <strong>grafo AND-OR</strong> tiene dos tipos de nodos: nodos OR (elegir UNA alternativa) y nodos AND (resolver TODOS los subproblemas).</p><p><strong>AO*</strong> se usa cuando un problema se descompone en subproblemas independientes. Ejemplo: planificar un viaje = reservar vuelo AND hotel AND auto, donde cada reserva tiene alternativas (OR).</p><p>A diferencia de A*, AO* no busca un camino sino un <strong>subgrafo soluci&oacute;n</strong>: un &aacute;rbol que incluye todos los hijos de nodos AND y exactamente un hijo de cada nodo OR.</p>' },
+  { q: '&iquest;Por qu&eacute; A* es &oacute;ptimo si la heur&iacute;stica es admisible?', a: '<p>Si A* expandiera una meta sub&oacute;ptima G, existir&iacute;a un nodo n en la frontera que pertenece al camino &oacute;ptimo a una meta G\' mejor.</p><p>Como h es admisible: f(n) = g(n) + h(n) &le; g(n) + h*(n) = costo del camino &oacute;ptimo por n &le; g(G\') &lt; g(G) = f(G).</p><p>Pero A* siempre expande el nodo de menor f, as&iacute; que habr&iacute;a expandido n antes que G. <strong>Contradicci&oacute;n.</strong> Por lo tanto, la primera meta que A* expande es &oacute;ptima.</p>' },
+  { q: '&iquest;Qu&eacute; es la poda alfa-beta y cu&aacute;nto ahorra?', a: '<p><strong>Alfa-beta</strong> es una optimizaci&oacute;n de Minimax que elimina ramas que no pueden cambiar la decisi&oacute;n. &alpha; es el mejor valor que MAX puede garantizar; &beta; es el mejor que MIN puede garantizar. Cuando &alpha; &ge; &beta;, se poda.</p><p><strong>Ahorro:</strong> en el mejor caso (nodos perfectamente ordenados), reduce de O(b<sup>d</sup>) a O(b<sup>d/2</sup>). Esto duplica la profundidad explorable con el mismo tiempo. En ajedrez pasa de ~4 jugadas a ~8.</p><p>Produce exactamente el mismo resultado que Minimax completo, solo que m&aacute;s r&aacute;pido.</p>' },
+  { q: '&iquest;C&oacute;mo elige Minimax la mejor jugada?', a: '<p>Minimax eval&uacute;a recursivamente el &aacute;rbol de juego. En los <strong>nodos terminales</strong> asigna la utilidad real (+1 ganar, -1 perder, 0 empate).</p><p>En nodos <strong>MAX</strong> (mi turno): elige el m&aacute;ximo de los valores de los hijos. En nodos <strong>MIN</strong> (turno del oponente): elige el m&iacute;nimo.</p><p>El valor se propaga desde las hojas hasta la ra&iacute;z, asumiendo que ambos jugadores juegan de forma &oacute;ptima. MAX elige la rama con mayor valor minimax en la ra&iacute;z.</p>' },
+  { q: '&iquest;Qu&eacute; pasa si el juego es demasiado grande para Minimax completo?', a: '<p>Se usan tres estrategias principales:</p><p>1. <strong>Profundidad l&iacute;mitada + funci&oacute;n de evaluaci&oacute;n:</strong> cortar la b&uacute;squeda a profundidad fija y usar una funci&oacute;n (aprendida o dise&ntilde;ada) que estime el valor de posiciones no terminales.</p><p>2. <strong>Poda alfa-beta:</strong> elimina ramas que no afectan la decisi&oacute;n, duplicando la profundidad efectiva.</p><p>3. <strong>MCTS:</strong> Monte Carlo Tree Search hace simulaciones aleatorias para estimar valores. AlphaGo combin&oacute; MCTS con redes neuronales para dominar Go (~10<sup>170</sup> estados).</p>' },
+  { q: '&iquest;Qu&eacute; ventaja tienen los AG sobre b&uacute;squeda exhaustiva?', a: '<p>Los AG son &uacute;tiles cuando la b&uacute;squeda exhaustiva es imposible por el tama&ntilde;o del espacio:</p><p>1. <strong>Paralelismo impl&iacute;cito:</strong> la poblaci&oacute;n explora m&uacute;ltiples regiones simult&aacute;neamente.</p><p>2. <strong>Sin gradiente:</strong> funcionan con funciones de aptitud arbitrarias (no necesitan derivadas).</p><p>3. <strong>Escapan de &oacute;ptimos locales:</strong> la mutaci&oacute;n y el cruce permiten saltar a nuevas regiones del espacio.</p><p>4. <strong>Flexibilidad:</strong> cualquier representaci&oacute;n de soluci&oacute;n funciona (binaria, real, permutaci&oacute;n).</p><p>Desventaja: no garantizan el &oacute;ptimo global, y la convergencia es estoc&aacute;stica.</p>' },
+  { q: '&iquest;C&oacute;mo afecta la tasa de mutaci&oacute;n a la convergencia?', a: '<p>La tasa de mutaci&oacute;n controla el balance entre <strong>explotaci&oacute;n</strong> (aprovechar buenas soluciones) y <strong>exploraci&oacute;n</strong> (buscar nuevas regiones).</p><p><strong>Muy baja (&lt;1%):</strong> poca diversidad, convergencia prematura a un &oacute;ptimo local. La poblaci&oacute;n se homogeneiza r&aacute;pido.</p><p><strong>Muy alta (&gt;30%):</strong> demasiado ruido, se destruyen buenas soluciones. Se convierte en b&uacute;squeda aleatoria.</p><p><strong>Rango t&iacute;pico (1-10%):</strong> suficiente diversidad para explorar sin destruir lo ganado. El valor exacto depende del problema.</p>' },
+  { q: '&iquest;C&oacute;mo eliges el mejor algoritmo de b&uacute;squeda para un problema?', a: '<p>Depende de las caracter&iacute;sticas del problema:</p><p><strong>Espacio peque&ntilde;o, soluci&oacute;n &oacute;ptima necesaria:</strong> BFS o A* (si hay buena heur&iacute;stica).</p><p><strong>Memoria limitada:</strong> IDS (profundizaci&oacute;n iterativa) o DFS con l&iacute;mite.</p><p><strong>Heur&iacute;stica admisible disponible:</strong> A* (garant&iacute;a de optimalidad + eficiencia).</p><p><strong>Problema descomponible en subproblemas:</strong> AO*.</p><p><strong>Juego adversarial:</strong> Minimax + alfa-beta. Si el &aacute;rbol es enorme: MCTS.</p><p><strong>Espacio enorme, sin estructura clara:</strong> AG o b&uacute;squeda local.</p><p><strong>Regla general:</strong> usar el algoritmo m&aacute;s simple que resuelva el problema con los recursos disponibles.</p>' }
+];
+
+const qaContainer = document.getElementById('qaContainer');
+qaData.forEach((item, i) => {
+  const div = document.createElement('div');
+  div.className = 'qa-item';
+  div.innerHTML = `
+    <div class="qa-q" tabindex="0" role="button" onclick="toggleQA(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleQA(this)}">
+      <span class="qa-num">${String(i+1).padStart(2,'0')}</span>
+      <span>${item.q}</span>
+      <span class="qa-arrow">&#9660;</span>
+    </div>
+    <div class="qa-a"><div class="qa-a-inner">${item.a}</div></div>`;
+  qaContainer.appendChild(div);
+});
+
+function toggleQA(el) {
+  const item = el.parentElement;
+  const answer = item.querySelector('.qa-a');
+  const isOpen = item.classList.contains('open');
+  item.classList.toggle('open');
+  answer.style.maxHeight = isOpen ? '0' : answer.scrollHeight + 'px';
+}
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.qa-item.open .qa-a').forEach(a => {
+    a.style.maxHeight = a.scrollHeight + 'px';
+  });
+});
+
+// ── Quiz ──
+const quizData = [
+  { q: '&iquest;Cu&aacute;les son los 4 elementos de la formulaci&oacute;n de un problema de b&uacute;squeda?', opts: ['Grafo, aristas, nodos, peso','Estado inicial, estado meta, operadores, funci&oacute;n de costo','Entrada, salida, proceso, memoria','Inicio, fin, condici&oacute;n, ciclo'], correct: 1, explain: 'La formulaci&oacute;n requiere: estado inicial, estado meta (o test de meta), operadores (acciones) y funci&oacute;n de costo.' },
+  { q: '&iquest;Cu&aacute;ntos estados alcanzables tiene el 8-puzzle?', opts: ['362,880','181,440','40,320','9!'], correct: 1, explain: '9! = 362,880 permutaciones totales, pero solo la mitad (181,440) son alcanzables desde cualquier configuraci&oacute;n dada (paridad de inversiones).' },
+  { q: '&iquest;Qu&eacute; algoritmo combina la optimalidad de BFS con la memoria de DFS?', opts: ['DLS (profundidad limitada)','UCS (costo uniforme)','IDS (profundizaci&oacute;n iterativa)','A*'], correct: 2, explain: 'IDS ejecuta DLS con l&iacute;mites crecientes (0,1,2...). Es completo y &oacute;ptimo como BFS, pero usa memoria O(bd) como DFS.' },
+  { q: '&iquest;Cu&aacute;l es la complejidad espacial de BFS?', opts: ['O(bd)','O(bm)','O(b^d)','O(d)'], correct: 2, explain: 'BFS almacena toda la frontera en memoria, que en el peor caso es O(b^d) donde b es el factor de ramificaci&oacute;n y d la profundidad de la soluci&oacute;n.' },
+  { q: '&iquest;La b&uacute;squeda hacia atr&aacute;s es mejor cuando...?', opts: ['La meta no est&aacute; definida','Hay muchas metas posibles','La meta est&aacute; bien definida y el inicio es amplio','El espacio de estados es peque&ntilde;o'], correct: 2, explain: 'Backward search funciona mejor cuando la meta es clara (se pueden calcular precondiciones) y el estado inicial generar&iacute;a demasiadas ramas.' },
+  { q: '&iquest;Qu&eacute; reduce la b&uacute;squeda bidireccional?', opts: ['De O(b^d) a O(b^d * 2)','De O(b^d) a O(b^(d/2))','De O(b^d) a O(d)','De O(b^d) a O(b*d)'], correct: 1, explain: 'La bidireccional ejecuta dos b&uacute;squedas de profundidad d/2 cada una, reduciendo de O(b^d) a O(2 * b^(d/2)), que es enormemente menor.' },
+  { q: '&iquest;Qu&eacute; significa que una heur&iacute;stica sea admisible?', opts: ['Que siempre da el costo exacto','Que nunca sobreestima el costo real','Que es consistente','Que es f&aacute;cil de calcular'], correct: 1, explain: 'Admisible = h(n) &le; h*(n) para todo nodo n. La heur&iacute;stica nunca sobreestima el costo real al objetivo. Esto garantiza optimalidad de A*.' },
+  { q: '&iquest;Qu&eacute; funci&oacute;n usa A* para elegir el siguiente nodo?', opts: ['f(n) = h(n)','f(n) = g(n)','f(n) = g(n) + h(n)','f(n) = max(g(n), h(n))'], correct: 2, explain: 'A* combina el costo real acumulado g(n) con la estimaci&oacute;n heur&iacute;stica h(n). Esto balancea calidad del camino actual con proximidad estimada a la meta.' },
+  { q: '&iquest;Qu&eacute; condici&oacute;n tiene una heur&iacute;stica consistente?', opts: ['h(n) = h*(n)','h(n) &le; c(n,n\') + h(n\')','h(n) &ge; h*(n)','h(n) = 0 para todo n'], correct: 1, explain: 'Consistencia (monoton&iacute;a): h(n) &le; c(n,n\') + h(n\') para todo sucesor n\' de n. Implica admisibilidad y garantiza que f nunca decrece en un camino.' },
+  { q: '&iquest;En un grafo AND-OR, un nodo AND significa...?', opts: ['Elegir la mejor alternativa','Resolver todos los subproblemas hijos','Que no hay soluci&oacute;n','Que el problema es trivial'], correct: 1, explain: 'Un nodo AND indica descomposici&oacute;n: el problema se resuelve solo si se resuelven TODOS sus subproblemas (hijos). Un nodo OR requiere resolver solo UNO.' },
+  { q: '&iquest;En Minimax, qu&eacute; hace el jugador MIN?', opts: ['Maximiza la utilidad','Minimiza la utilidad','Elige al azar','No participa en la decisi&oacute;n'], correct: 1, explain: 'MIN busca minimizar el valor de utilidad (peor caso para MAX). Minimax asume que el oponente juega de forma &oacute;ptima.' },
+  { q: '&iquest;Cu&aacute;ndo se poda en alfa-beta?', opts: ['Cuando alfa = 0','Cuando beta = 0','Cuando alfa &ge; beta','Cuando alfa + beta = 0'], correct: 2, explain: 'Se poda cuando alfa &ge; beta. MAX ya tiene algo mejor (alfa) que lo que MIN le permitir&iacute;a (beta), as&iacute; que explorar m&aacute;s es in&uacute;til.' },
+  { q: '&iquest;Cu&aacute;l es la complejidad de alfa-beta en el mejor caso?', opts: ['O(b^d)','O(b^(d/2))','O(bd)','O(d*log(b))'], correct: 1, explain: 'Con orden perfecto de nodos, alfa-beta reduce de O(b^d) a O(b^(d/2)), lo que equivale a duplicar la profundidad explorable con el mismo tiempo.' },
+  { q: '&iquest;Qu&eacute; t&eacute;cnica us&oacute; AlphaGo para vencer a Lee Sedol?', opts: ['Minimax puro','Solo alfa-beta','MCTS + redes neuronales','Algoritmos gen&eacute;ticos'], correct: 2, explain: 'AlphaGo (2016) combin&oacute; Monte Carlo Tree Search con redes neuronales profundas (policy network + value network) entrenadas con partidas humanas y self-play.' },
+  { q: '&iquest;Qu&eacute; es un cromosoma en un algoritmo gen&eacute;tico?', opts: ['Una funci&oacute;n de aptitud','Un operador gen&eacute;tico','Una soluci&oacute;n candidata codificada','La poblaci&oacute;n completa'], correct: 2, explain: 'Un cromosoma es la representaci&oacute;n codificada de una soluci&oacute;n candidata (cadena binaria, permutaci&oacute;n, vector real). Cada individuo de la poblaci&oacute;n es un cromosoma.' },
+  { q: '&iquest;Qu&eacute; operador gen&eacute;tico introduce diversidad para escapar de &oacute;ptimos locales?', opts: ['Selecci&oacute;n','Cruce','Mutaci&oacute;n','Elitismo'], correct: 2, explain: 'La mutaci&oacute;n introduce cambios aleatorios peque&ntilde;os que permiten explorar nuevas regiones del espacio de b&uacute;squeda y evitar convergencia prematura.' },
+  { q: '&iquest;Qu&eacute; tipo de cruce es mejor para permutaciones como el TSP?', opts: ['Un punto','Dos puntos','Uniforme','Order Crossover (OX)'], correct: 3, explain: 'OX preserva el orden relativo de los genes, lo cual es esencial en permutaciones. Los cruces de punto simple pueden generar soluciones inv&aacute;lidas (ciudades repetidas).' },
+  { q: '&iquest;Qu&eacute; pasa si la tasa de mutaci&oacute;n es muy alta (&gt;30%)?', opts: ['Converge m&aacute;s r&aacute;pido al &oacute;ptimo','Se destruyen buenas soluciones y se vuelve b&uacute;squeda aleatoria','No tiene ning&uacute;n efecto','Se eliminan todos los individuos'], correct: 1, explain: 'Con mutaci&oacute;n excesiva, las buenas soluciones se corrompen constantemente. El AG pierde la capacidad de explotar lo que encontr&oacute; y se convierte en b&uacute;squeda aleatoria.' },
+  { q: '&iquest;Cu&aacute;l es la aptitud m&aacute;xima en el problema de 8 reinas con la formulaci&oacute;n de pares no atacados?', opts: ['8','16','28','56'], correct: 2, explain: '28 = C(8,2) = n&uacute;mero de pares posibles de reinas. Si ning&uacute;n par se ataca (0 conflictos diagonales), la aptitud es 28 (m&aacute;xima).' },
+  { q: '&iquest;Cu&aacute;l algoritmo usar&iacute;as para encontrar el camino &oacute;ptimo en un mapa con una buena heur&iacute;stica de distancia?', opts: ['DFS','Algoritmo gen&eacute;tico','A* con heur&iacute;stica admisible','Minimax'], correct: 2, explain: 'A* con heur&iacute;stica admisible (como distancia euclidiana o Manhattan) garantiza encontrar el camino &oacute;ptimo y es mucho m&aacute;s eficiente que BFS gracias a la heur&iacute;stica.' }
+];
+
+let quizAnswered = 0;
+let quizCorrect = 0;
+const quizContainer = document.getElementById('quizContainer');
+
+function buildQuiz() {
+  quizContainer.innerHTML = '';
+  quizData.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.id = 'quiz-' + qi;
+    let optsHtml = item.opts.map((o, oi) =>
+      `<div class="quiz-opt" tabindex="0" role="button" data-qi="${qi}" data-oi="${oi}" onclick="answerQuiz(${qi},${oi})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();answerQuiz(${qi},${oi})}">
+        <span class="marker">${'ABCD'[oi]}</span><span>${o}</span>
+      </div>`
+    ).join('');
+    card.innerHTML = `<h4>${qi+1}. ${item.q}</h4><div class="quiz-opts">${optsHtml}</div><div class="quiz-feedback" id="fb-${qi}"></div>`;
+    quizContainer.appendChild(card);
+  });
+}
+buildQuiz();
+
+function resetQuiz() {
+  quizAnswered = 0;
+  quizCorrect = 0;
+  document.getElementById('quizScore').style.display = 'none';
+  document.getElementById('resetQuizBtn').style.display = 'none';
+  buildQuiz();
+  quizContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function answerQuiz(qi, oi) {
+  const card = document.getElementById('quiz-' + qi);
+  if (card.dataset.answered) return;
+  card.dataset.answered = '1';
+  quizAnswered++;
+  const opts = card.querySelectorAll('.quiz-opt');
+  const fb = document.getElementById('fb-' + qi);
+  const item = quizData[qi];
+  opts.forEach((o, i) => {
+    if (i === item.correct) o.classList.add('correct');
+    if (i === oi && i !== item.correct) o.classList.add('wrong');
+    o.style.cursor = 'default';
+  });
+  if (oi === item.correct) {
+    quizCorrect++;
+    fb.className = 'quiz-feedback show right';
+    fb.textContent = 'Correcto. ' + item.explain;
+  } else {
+    fb.className = 'quiz-feedback show wrong-fb';
+    fb.textContent = 'Incorrecto. ' + item.explain;
+  }
+  if (quizAnswered === quizData.length) {
+    const scoreEl = document.getElementById('quizScore');
+    scoreEl.style.display = 'block';
+    const pct = Math.round(quizCorrect/quizData.length*100);
+    scoreEl.textContent = `Resultado: ${quizCorrect}/${quizData.length} (${pct}%)`;
+    scoreEl.style.color = quizCorrect >= 14 ? 'var(--success)' : 'var(--error)';
+    document.getElementById('resetQuizBtn').style.display = 'inline-block';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+# CI Pipeline - Bloque B: Busqueda sin Informacion
+# Ejecuta eval + guardrails en cada push/PR para mantener calidad
+
+name: CI - Eval & Guardrails
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validar Quiz & Guardrails
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Ejecutar Eval (quiz answers)
+        run: python eval_quiz.py presentacion/ia_bloque_b.html
+
+      - name: Ejecutar Guardrails (quality checks)
+        run: python guardrails.py presentacion/ia_bloque_b.html
+
+      - name: Verificar estructura del repositorio
+        run: |
+          echo "Verificando archivos requeridos..."
+          test -f README.md || (echo "FAIL: README.md no existe" && exit 1)
+          test -f ARCHITECTURE.md || (echo "FAIL: ARCHITECTURE.md no existe" && exit 1)
+          test -f AI_USAGE.md || (echo "FAIL: AI_USAGE.md no existe" && exit 1)
+          test -f CLAUDE.md || (echo "FAIL: CLAUDE.md no existe" && exit 1)
+          test -f references/references.bib || (echo "FAIL: references.bib no existe" && exit 1)
+          test -f presentacion/ia_bloque_b.html || (echo "FAIL: HTML no existe" && exit 1)
+          echo "Todos los archivos requeridos existen."
+
+      - name: Verificar HTML valido
+        run: |
+          echo "Verificando estructura HTML basica..."
+          grep -q '<!DOCTYPE html>' presentacion/ia_bloque_b.html || \
+            grep -q '<!doctype html>' presentacion/ia_bloque_b.html || \
+            (echo "FAIL: No se encontro DOCTYPE" && exit 1)
+          grep -q '</html>' presentacion/ia_bloque_b.html || \
+            (echo "FAIL: HTML no cierra correctamente" && exit 1)
+          echo "HTML estructura basica OK."
