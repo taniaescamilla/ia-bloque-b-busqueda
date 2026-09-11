@@ -1,0 +1,1460 @@
+================================================================
+REVIEW PACKAGE: IA Bloque B - Búsqueda
+Repo: https://github.com/taniaescamilla/ia-bloque-b-busqueda
+Generated: Fri Sep 11 11:34:09 PDTM 2026
+================================================================
+
+======== FILE 1: docs/documento_academico_bloque_b.md ========
+# UNIVERSIDAD NACIONAL ROSARIO CASTELLANOS
+## LICENCIATURA EN CIENCIA DE DATOS PARA NEGOCIOS
+
+---
+
+# DOCUMENTO ACADEMICO EN EXTENSO
+# BLOQUE B: BUSQUEDA SIN INFORMACION
+
+---
+
+**FICHA TECNICA DEL BLOQUE CURRICULAR**
+
+| Campo | Valor |
+|-------|-------|
+| **Asignatura / UCA** | Inteligencia Artificial (LCDN4INT10) |
+| **Unidad Tematica** | Bloque B: Busqueda sin Informacion |
+| **Programa Academico** | Licenciatura en Ciencia de Datos para Negocios |
+| **Institucion Educativa** | Universidad Nacional Rosario Castellanos |
+| **Ciclo Lectivo** | Cuarto Semestre |
+| **Docente** | Martin Humberto Llamas Haro |
+
+**Equipo**
+
+| Integrante | Rol |
+|------------|-----|
+| Daniel Ruffo | Investigacion, desarrollo, arquitectura del repositorio |
+| Giovana Espinosa | Investigacion, revision, validacion academica |
+
+Ciudad de Mexico, Mexico, 2026
+
+---
+
+## Indice
+
+1. Introduccion y Motivacion
+2. Espacio de Estados y Representacion de Problemas
+   2.1. Definicion formal
+   2.2. Ejemplo: el rompecabezas de 8 piezas
+3. Estrategias de Busqueda No Informada
+   3.1. Busqueda en anchura (BFS)
+   3.2. Busqueda en profundidad (DFS)
+   3.3. Busqueda en profundidad limitada e iterativa (IDS)
+   3.4. Busqueda de costo uniforme
+4. Busqueda Hacia Adelante y Hacia Atras
+   4.1. Busqueda hacia adelante (forward chaining)
+   4.2. Busqueda hacia atras (backward chaining)
+   4.3. Busqueda bidireccional
+5. Busqueda Informada y Reduccion de Problemas
+   5.1. Funciones heuristicas: admisibilidad y consistencia
+   5.2. Algoritmo A
+   5.3. Algoritmo A*
+   5.4. Algoritmo IDA*
+   5.5. Grafos AND/OR y Algoritmo AO*
+6. Juegos de Adversario: Minimax y Poda Alfa-Beta
+   6.1. Arboles de juego y el teorema minimax
+   6.2. El algoritmo minimax
+   6.3. Poda alfa-beta
+   6.4. Aplicaciones: de Deep Blue a AlphaGo
+7. Algoritmos Geneticos y Computacion Evolutiva
+   7.1. Fundamentos biologicos y formalizacion
+   7.2. Operadores geneticos
+   7.3. Teorema del esquema de Holland
+   7.4. Teorema No Free Lunch
+8. Conexion con la Ciencia de Datos
+9. Dimension Etica y Responsabilidad
+10. Conclusiones
+Referencias
+
+---
+
+## 1. Introduccion y Motivacion
+
+La busqueda constituye el mecanismo computacional fundamental mediante el cual un agente inteligente explora sistematicamente un espacio de posibilidades para encontrar una solucion a un problema dado. Historicamente, los primeros programas de inteligencia artificial, como el General Problem Solver de Newell y Simon (1972), operaban esencialmente como algoritmos de busqueda sobre representaciones simbolicas del conocimiento.
+
+Russell y Norvig (2021) establecen que la formulacion de un problema de busqueda requiere cinco componentes: un estado inicial, una funcion de acciones aplicables, un modelo de transicion, una prueba de meta y una funcion de costo de camino. Esta abstraccion resulta notablemente general: desde la navegacion de un robot en un almacen hasta la demostracion automatica de teoremas, la estructura subyacente es un grafo de estados que debe recorrerse de manera eficiente.
+
+El presente documento examina en profundidad los algoritmos de busqueda correspondientes al Bloque B del programa de Inteligencia Artificial de la Licenciatura en Ciencia de Datos para Negocios de la Universidad Nacional Rosario Castellanos. El bloque abarca desde las estrategias no informadas clasicas hasta los metodos heuristicos, la teoria de juegos de adversario y la computacion evolutiva, articulando cada tema con sus fundamentos teoricos, su complejidad computacional y sus aplicaciones contemporaneas.
+
+---
+
+## 2. Espacio de Estados y Representacion de Problemas
+
+### 2.1. Definicion formal
+
+Un problema de busqueda se define formalmente como una tupla (S, s0, A, T, G, c) donde:
+
+- **S** es el conjunto de estados posibles (espacio de estados).
+- **s0** pertenece a S y es el estado inicial.
+- **A(s)** es el conjunto de acciones aplicables en el estado s.
+- **T(s, a)** es la funcion de transicion que, dado un estado s y una accion a, produce el estado sucesor s'.
+- **G** es un subconjunto de S que contiene los estados meta.
+- **c(s, a, s')** es la funcion de costo que asigna un valor numerico no negativo a cada transicion (Russell y Norvig, 2021).
+
+El espacio de estados puede representarse como un grafo dirigido donde los nodos corresponden a estados y las aristas a acciones. La solucion al problema es un camino desde s0 hasta algun estado en G, y la solucion optima es aquella con costo minimo.
+
+La complejidad del espacio de estados es un factor determinante en la seleccion del algoritmo. Para el ajedrez, el espacio tiene aproximadamente 10^43 estados legales (Shannon, 1950). Para el juego de Go, la cifra asciende a 10^170, lo que hace inviable cualquier enumeracion exhaustiva y motiva el uso de heuristicas y metodos de Monte Carlo (Silver et al., 2016).
+
+### 2.2. Ejemplo: el rompecabezas de 8 piezas
+
+El 8-puzzle es un problema clasico con 9!/2 = 181,440 estados alcanzables. Cada estado es una configuracion de las fichas numeradas del 1 al 8 en una cuadricula 3x3, con una casilla vacia. Las acciones consisten en deslizar una ficha adyacente al espacio vacio. La prueba de meta es alcanzar la configuracion ordenada.
+
+Este problema ha servido como benchmark historico para comparar algoritmos de busqueda. Korf (1985) demostro que la busqueda iterativa en profundidad (IDA*) con la heuristica de distancia Manhattan resuelve instancias del 15-puzzle (cuyo espacio tiene 10^13 estados) de manera optima con memoria lineal, un resultado que revoluciono el campo.
+
+---
+
+## 3. Estrategias de Busqueda No Informada
+
+Los algoritmos de busqueda no informada (ciega) no utilizan informacion sobre la distancia al estado meta. Se distinguen por cuatro criterios de evaluacion (Russell y Norvig, 2021):
+
+- **Completitud:** si la solucion existe, el algoritmo la encuentra.
+- **Optimalidad:** el algoritmo encuentra la solucion de menor costo.
+- **Complejidad temporal:** numero de nodos generados.
+- **Complejidad espacial:** numero maximo de nodos en memoria.
+
+Sea b el factor de ramificacion y d la profundidad de la solucion mas superficial.
+
+### 3.1. Busqueda en anchura (BFS)
+
+Explora el arbol de busqueda nivel por nivel, expandiendo todos los nodos de profundidad k antes de pasar a profundidad k+1. Utiliza una cola FIFO como frontera.
+
+- Completitud: Si, si b es finito.
+- Optimalidad: Si, cuando el costo es uniforme (todos los pasos cuestan igual).
+- Tiempo: O(b^d).
+- Espacio: O(b^d).
+
+La complejidad espacial es el talon de Aquiles de BFS. Para b = 10 y d = 12, la frontera requiere almacenar 10^12 nodos, lo cual excede la memoria de cualquier computadora actual (Nilsson, 1980).
+
+### 3.2. Busqueda en profundidad (DFS)
+
+Explora el arbol siguiendo una rama hasta su maxima profundidad antes de retroceder. Utiliza una pila LIFO como frontera (o recursion).
+
+- Completitud: No en espacios infinitos o con ciclos (si, en grafos finitos con deteccion de repetidos).
+- Optimalidad: No.
+- Tiempo: O(b^m), donde m es la profundidad maxima del arbol.
+- Espacio: O(bm), es decir, lineal en la profundidad.
+
+La ventaja fundamental de DFS es su eficiencia en memoria: requiere almacenar solo O(bm) nodos, frente a los O(b^d) de BFS. Esta propiedad la hace viable para espacios de busqueda muy grandes cuando la solucion se encuentra a profundidad razonable.
+
+### 3.3. Busqueda en profundidad limitada e iterativa (IDS)
+
+Korf (1985) propuso la busqueda iterativa en profundidad (Iterative Deepening Search), que combina las ventajas de BFS y DFS. Ejecuta sucesivas busquedas DFS con limites de profundidad crecientes: primero busca a profundidad 0, luego 1, luego 2, y asi sucesivamente.
+
+- Completitud: Si.
+- Optimalidad: Si, cuando el costo es uniforme.
+- Tiempo: O(b^d).
+- Espacio: O(bd).
+
+Aunque pareciera ineficiente regenerar los niveles superiores, el trabajo redundante es insignificante: la capa d tiene b^d nodos, y el trabajo total de IDS es aproximadamente b^d * b/(b-1), un factor constante respecto a BFS. IDS es el algoritmo de busqueda no informada preferido cuando el espacio de estados es grande y la profundidad de la solucion es desconocida (Russell y Norvig, 2021).
+
+### 3.4. Busqueda de costo uniforme
+
+Generaliza BFS para costos de arista no uniformes. Expande el nodo con menor costo acumulado g(n), utilizando una cola de prioridad. Es completa y optima siempre que los costos sean positivos (Dijkstra, 1959). Su complejidad temporal y espacial es O(b^(1+C*/epsilon)), donde C* es el costo de la solucion optima y epsilon es el costo minimo de una arista.
+
+---
+
+## 4. Busqueda Hacia Adelante y Hacia Atras
+
+### 4.1. Busqueda hacia adelante (forward chaining)
+
+La busqueda hacia adelante, tambien denominada encadenamiento progresivo o data-driven search, parte del estado inicial y aplica acciones sucesivas hacia la meta. Es el paradigma natural de la mayoria de los algoritmos de busqueda (BFS, DFS, A*). En sistemas basados en reglas, corresponde al encadenamiento hacia adelante: si los datos satisfacen las premisas de una regla, se ejecuta la accion y se produce un nuevo estado.
+
+Su ventaja principal radica en que solo genera estados alcanzables desde el estado inicial, evitando explorar regiones del espacio de estados irrelevantes para el problema.
+
+### 4.2. Busqueda hacia atras (backward chaining)
+
+La busqueda hacia atras parte del estado meta y trabaja en sentido inverso, buscando que acciones pudieron producir ese estado. En planificacion automatica, corresponde a la regresion: dado un estado meta G, se identifican las acciones cuyo efecto incluye algun subobjetivo de G, y se computa el estado predecesor necesario.
+
+Este enfoque resulta eficiente cuando el conjunto de estados meta es pequeno pero el factor de ramificacion hacia adelante es grande. En demostracion automatica de teoremas, por ejemplo, es mas natural partir del teorema a demostrar y buscar las premisas que lo sustenten (Nilsson, 1980).
+
+### 4.3. Busqueda bidireccional
+
+La busqueda bidireccional ejecuta simultaneamente una busqueda hacia adelante desde el estado inicial y una busqueda hacia atras desde la meta, hasta que ambas fronteras se intersectan.
+
+Su ventaja teorica es considerable: si la busqueda unidireccional tiene complejidad O(b^d), la bidireccional tiene O(2 * b^(d/2)) = O(b^(d/2)), una reduccion exponencial. Para b = 10 y d = 12, esto significa 2 * 10^6 nodos en lugar de 10^12.
+
+La dificultad practica reside en computar eficientemente los predecesores de un estado y en disenar un criterio de terminacion correcto que garantice optimalidad (Russell y Norvig, 2021).
+
+---
+
+## 5. Busqueda Informada y Reduccion de Problemas
+
+### 5.1. Funciones heuristicas: admisibilidad y consistencia
+
+Una funcion heuristica h(n) estima el costo desde el nodo n hasta la meta mas cercana. Se dice que h es:
+
+- **Admisible** si nunca sobreestima el costo real: h(n) <= h*(n) para todo n, donde h*(n) es el costo real optimo.
+- **Consistente** (o monotona) si para todo nodo n y sucesor n' generado por la accion a: h(n) <= c(n, a, n') + h(n').
+
+Toda heuristica consistente es admisible, pero no al reves. La consistencia garantiza que los valores de f(n) = g(n) + h(n) son no decrecientes a lo largo de cualquier camino, lo que simplifica la demostracion de optimalidad de A* (Pearl, 1984).
+
+**Ejemplos clasicos para el 8-puzzle:**
+
+- h1: numero de fichas mal colocadas (admisible, subestima).
+- h2: suma de distancias Manhattan de cada ficha a su posicion meta (admisible, domina a h1).
+
+Pearl (1984) demostro que si h2(n) >= h1(n) para todo n (h2 domina a h1), entonces A* con h2 expande un subconjunto de los nodos que A* expandiria con h1. Por lo tanto, heuristicas mas informadas producen busquedas mas eficientes.
+
+### 5.2. Algoritmo A
+
+El Algoritmo A es la version basica de busqueda best-first que utiliza la funcion de evaluacion f(n) = g(n) + h(n), donde g(n) es el costo del camino desde el inicio hasta n, y h(n) es una estimacion heuristica del costo restante. Sin restricciones sobre h, el Algoritmo A no garantiza optimalidad.
+
+### 5.3. Algoritmo A*
+
+Hart, Nilsson y Raphael (1968) introdujeron A* como una extension del Algoritmo A con la restriccion de que h sea admisible. Este resultado fundamental establece que:
+
+**Teorema (Hart et al., 1968):** Si h es admisible, A* es completo y optimo. Es decir, la primera solucion que A* encuentra es necesariamente la de menor costo.
+
+**Teorema de optimalidad de eficiencia:** Ningun otro algoritmo que use la misma informacion heuristica puede garantizar expandir menos nodos que A* sin sacrificar optimalidad (dada una heuristica consistente).
+
+El funcionamiento de A* se resume asi:
+
+1. Inicializar la lista abierta con el nodo inicial (f = h(s0)).
+2. Extraer el nodo n con menor f de la lista abierta.
+3. Si n es meta, retornar la solucion.
+4. Expandir n, calculando f(n') = g(n') + h(n') para cada sucesor.
+5. Si n' no esta en la lista cerrada (o se encontro un camino mas corto), agregarlo a la lista abierta.
+6. Repetir desde el paso 2.
+
+La complejidad temporal de A* depende criticamente de la calidad de la heuristica. Con una heuristica perfecta (h = h*), A* va directo a la solucion en O(d). Con h = 0 (sin informacion), A* degenera en busqueda de costo uniforme. En el peor caso, la complejidad es exponencial, pero en la practica heuristicas bien disenadas reducen drasticamente el espacio explorado.
+
+La principal limitacion de A* es su consumo de memoria: almacena todos los nodos generados, lo que puede agotar la RAM antes de encontrar la solucion.
+
+### 5.4. Algoritmo IDA*
+
+Korf (1985) propuso Iterative Deepening A* (IDA*) para resolver el problema de memoria de A*. IDA* realiza sucesivas busquedas en profundidad, pero en lugar de usar la profundidad como limite, usa el valor de f:
+
+1. Establecer el umbral t = f(s0) = h(s0).
+2. Ejecutar DFS, podando nodos donde f(n) > t.
+3. Si no se encontro solucion, actualizar t al menor valor de f que excedio el umbral.
+4. Repetir.
+
+IDA* es completo, optimo (con h admisible) y usa memoria lineal O(bd). Es el algoritmo de eleccion para problemas con espacios de estados muy grandes y costos uniformes. Korf lo utilizo para resolver de manera optima todas las instancias del 15-puzzle, un logro notable considerando que el espacio tiene mas de 10^13 estados.
+
+### 5.5. Grafos AND/OR y Algoritmo AO*
+
+Algunos problemas admiten descomposicion: resolver el problema principal equivale a resolver un conjunto de subproblemas. Esta estructura se representa mediante grafos AND/OR:
+
+- **Nodo OR:** se resuelve si al menos uno de sus hijos se resuelve (alternativas).
+- **Nodo AND:** se resuelve solo si todos sus hijos se resuelven (subproblemas obligatorios).
+
+El algoritmo AO* (Martelli y Montanari, 1973) generaliza A* para grafos AND/OR. Mantiene un grafo de solucion parcial y en cada iteracion:
+
+1. Selecciona el nodo hoja no resuelto mas prometedor del grafo de solucion actual.
+2. Lo expande.
+3. Actualiza los costos de manera ascendente (bottom-up) por el grafo.
+4. Revisa el grafo de solucion optimo.
+
+AO* es relevante en planificacion con incertidumbre, donde las acciones pueden tener multiples resultados (nodos AND representan los posibles resultados, todos los cuales deben poder manejarse). Tambien se utiliza en demostracion automatica de teoremas y en descomposicion jerarquica de tareas.
+
+---
+
+## 6. Juegos de Adversario: Minimax y Poda Alfa-Beta
+
+### 6.1. Arboles de juego y el teorema minimax
+
+Un juego de adversario de suma cero con informacion perfecta se modela como un arbol donde los niveles alternan entre los movimientos de MAX (jugador que maximiza) y MIN (jugador que minimiza). En los nodos terminales, una funcion de utilidad asigna un valor numerico que refleja el resultado (victoria, derrota, empate).
+
+Von Neumann demostro el teorema minimax en 1928, formalizado extensamente en Von Neumann y Morgenstern (1944): en un juego finito de suma cero con informacion perfecta, existe una estrategia optima para cada jugador y un valor del juego determinado. Este resultado fundamental establece que la teoria de juegos tiene una solucion racional bien definida.
+
+### 6.2. El algoritmo minimax
+
+El algoritmo minimax (Russell y Norvig, 2021) computa recursivamente el valor minimax de cada nodo:
+
+- Si n es terminal: valor(n) = utilidad(n).
+- Si n es nodo MAX: valor(n) = max sobre los hijos de n de valor(hijo).
+- Si n es nodo MIN: valor(n) = min sobre los hijos de n de valor(hijo).
+
+El algoritmo realiza una exploracion completa en profundidad (DFS) del arbol de juego. Su complejidad es O(b^m), donde b es el factor de ramificacion y m es la profundidad maxima. Para el ajedrez, con b aproximadamente 35 y m aproximadamente 80, esto es computacionalmente intratable.
+
+En la practica, minimax se combina con:
+- **Profundidad limitada:** se corta la busqueda a profundidad d y se aplica una funcion de evaluacion heuristica en los nodos hoja.
+- **Quiescence search:** se extiende la busqueda en posiciones "inestables" (capturas, jaques) para evitar el efecto horizonte.
+
+### 6.3. Poda alfa-beta
+
+Knuth y Moore (1975) analizaron formalmente la poda alfa-beta, un metodo que elimina ramas del arbol de juego que no pueden influir en la decision final. El algoritmo mantiene dos valores:
+
+- **alfa:** el mejor valor que MAX puede garantizar en el camino actual (limite inferior).
+- **beta:** el mejor valor que MIN puede garantizar en el camino actual (limite superior).
+
+La poda ocurre cuando alfa >= beta: si MAX ya tiene una opcion que garantiza al menos alfa, y MIN tiene una opcion que garantiza a lo sumo beta <= alfa, entonces la rama actual es irrelevante.
+
+**Resultado fundamental (Knuth y Moore, 1975):** Con ordenamiento perfecto de movimientos, la poda alfa-beta reduce la complejidad de O(b^d) a O(b^(d/2)), duplicando efectivamente la profundidad de busqueda alcanzable con los mismos recursos. Esto equivale a reducir el factor de ramificacion efectivo de b a la raiz cuadrada de b.
+
+En el ajedrez, esto significa pasar de b = 35 a un factor efectivo de aproximadamente 6, lo que hace viable la busqueda a profundidades competitivas.
+
+### 6.4. Aplicaciones: de Deep Blue a AlphaGo
+
+**Deep Blue** (Campbell et al., 2002) derroto al campeon mundial Garry Kasparov en 1997 utilizando minimax con poda alfa-beta, hardware especializado capaz de evaluar 200 millones de posiciones por segundo, y una funcion de evaluacion afinada por grandes maestros.
+
+**AlphaGo** (Silver et al., 2016) represento un cambio de paradigma al combinar redes neuronales profundas con busqueda de arbol Monte Carlo (MCTS) para dominar el juego de Go, cuyo factor de ramificacion (b aproximadamente 250) y profundidad hacen inviable el enfoque clasico de minimax. La red de politica guia la seleccion de movimientos a explorar, mientras que la red de valor evalua posiciones sin necesidad de jugar hasta el final.
+
+**AlphaGo Zero** (Silver et al., 2017) elimino por completo el conocimiento humano previo: aprendio exclusivamente mediante autopartidas (self-play) con aprendizaje por refuerzo, superando a todas las versiones anteriores. Este resultado demostro que la busqueda combinada con aprendizaje profundo puede trascender el conocimiento humano experto.
+
+---
+
+## 7. Algoritmos Geneticos y Computacion Evolutiva
+
+### 7.1. Fundamentos biologicos y formalizacion
+
+Los algoritmos geneticos (AG), introducidos por Holland (1975), son metaheuristicas de optimizacion inspiradas en la seleccion natural darwiniana. Operan sobre una poblacion de soluciones candidatas (cromosomas o individuos) que evolucionan iterativamente mediante operadores que simulan procesos biologicos.
+
+Formalmente, un AG se define por:
+
+- **Representacion:** codificacion de una solucion como un cromosoma (cadena binaria, vector de reales, permutacion).
+- **Funcion de aptitud (fitness):** f: C -> R que cuantifica la calidad de cada cromosoma.
+- **Poblacion:** conjunto de N cromosomas que evoluciona en cada generacion.
+- **Operadores geneticos:** seleccion, cruzamiento y mutacion.
+- **Criterio de paro:** numero maximo de generaciones, convergencia, o aptitud objetivo alcanzada.
+
+### 7.2. Operadores geneticos
+
+**Seleccion:** Mecanismo que favorece la reproduccion de individuos con mayor aptitud. Los metodos principales incluyen:
+
+- Ruleta proporcional (roulette wheel): la probabilidad de seleccion de un individuo es proporcional a su fitness relativo.
+- Torneo (tournament): se eligen k individuos al azar y se selecciona el de mayor fitness. Controla la presion selectiva ajustando k.
+- Elitismo: los mejores n individuos pasan directamente a la siguiente generacion sin modificacion.
+
+**Cruzamiento (crossover):** Recombina material genetico de dos padres para producir descendencia. Tipos principales:
+
+- Un punto: se elige un punto de corte y se intercambian los segmentos.
+- Dos puntos: se eligen dos puntos y se intercambia el segmento intermedio.
+- Uniforme: cada gen se hereda de uno u otro padre con probabilidad 0.5.
+
+**Mutacion:** Introduce variaciones aleatorias en un cromosoma individual. En codificacion binaria, se invierte un bit con probabilidad pm (tipicamente 0.001 a 0.01). La mutacion previene la convergencia prematura al mantener diversidad genetica en la poblacion, permitiendo la exploracion de nuevas regiones del espacio de busqueda (Goldberg, 1989).
+
+### 7.3. Teorema del esquema de Holland
+
+Holland (1975) demostro que los AG procesan implicitamente un numero exponencial de esquemas (patrones parciales) de manera simultanea. Un esquema H es un patron con posiciones fijas y comodines. El teorema establece que esquemas cortos, de bajo orden y con aptitud superior al promedio reciben un numero exponencialmente creciente de representantes en generaciones sucesivas.
+
+Este resultado, conocido como el "paralelismo implicito" de los AG, explica por que los AG pueden explorar eficientemente espacios de busqueda exponencialmente grandes: no evaluan cada solucion independientemente, sino que procesan simultaneamente bloques constructivos (building blocks) que se combinan para formar soluciones cada vez mejores.
+
+### 7.4. Teorema No Free Lunch
+
+Wolpert y Macready (1997) demostraron el teorema No Free Lunch (NFL): promediado sobre todos los problemas posibles, ningun algoritmo de optimizacion supera a otro. Es decir, si el AG es superior a la busqueda aleatoria en un problema, necesariamente sera inferior en algun otro.
+
+La implicacion practica del NFL es que la efectividad de un AG depende criticamente de que su representacion, operadores y parametros se ajusten a la estructura del problema especifico. No existe un algoritmo universal de optimizacion, lo que resalta la importancia del conocimiento del dominio en la aplicacion de cualquier metodo de busqueda.
+
+---
+
+## 8. Conexion con la Ciencia de Datos
+
+Los algoritmos de busqueda del Bloque B no son meras abstracciones teoricas; constituyen pilares operativos de la ciencia de datos contemporanea:
+
+**Optimizacion de hiperparametros:** La busqueda en cuadricula (grid search) es una busqueda exhaustiva en el espacio de hiperparametros. La busqueda aleatoria y los metodos bayesianos aplican estrategias mas sofisticadas. Los algoritmos geneticos se utilizan en AutoML para evolucionar arquitecturas de redes neuronales (neuroevolucion).
+
+**Planificadores de consultas SQL:** Los optimizadores de bases de datos relacionales (PostgreSQL, Oracle) implementan variantes de A* para encontrar el plan de ejecucion de menor costo entre las multiples estrategias posibles de JOIN, escaneo e indexacion.
+
+**Sistemas de recomendacion:** Los grafos de conocimiento se recorren mediante busquedas informadas para descubrir relaciones entre usuarios, productos y preferencias.
+
+**Aprendizaje por refuerzo:** Los metodos de busqueda de arbol Monte Carlo (MCTS), que combinan minimax con muestreo estocastico, son fundamentales en AlphaGo y en la planificacion de agentes autonomos.
+
+**Seleccion de caracteristicas:** Los AG se aplican como metodo wrapper para seleccionar subconjuntos optimos de features, donde cada cromosoma codifica una mascara binaria de inclusion/exclusion de variables.
+
+---
+
+## 9. Dimension Etica y Responsabilidad
+
+En consonancia con el perfil de egreso de la Licenciatura en Ciencia de Datos para Negocios de la UNRC, la aplicacion de algoritmos de busqueda y optimizacion en contextos reales conlleva responsabilidades eticas significativas:
+
+**Transparencia algoritmica:** Los sistemas de toma de decisiones automatizadas deben ser auditables. Un algoritmo A* que planifica rutas de reparto debe poder explicar por que eligio una ruta sobre otra, especialmente si las decisiones afectan condiciones laborales.
+
+**Sesgos en funciones de evaluacion:** Las funciones heuristicas y de fitness codifican valores implicitos. Una funcion de evaluacion para contratacion automatizada puede perpetuar discriminaciones historicas si se entrena con datos sesgados.
+
+**Uso dual de la IA en juegos y conflictos:** Los mismos algoritmos minimax que permiten jugar ajedrez se aplican en estrategia militar y ciberseguridad. La comunidad cientifica tiene la responsabilidad de considerar las implicaciones de los avances en busqueda adversarial.
+
+**Consumo energetico:** El entrenamiento de sistemas como AlphaGo Zero requirio miles de TPUs durante dias. La eficiencia computacional de los algoritmos de busqueda tiene implicaciones ambientales directas.
+
+---
+
+## 10. Conclusiones
+
+El recorrido del Bloque B revela que la busqueda no es un tema aislado sino el hilo conductor que conecta los fundamentos de la inteligencia artificial con sus aplicaciones mas avanzadas. Desde la busqueda ciega en grafos hasta la poda alfa-beta en juegos de adversario, pasando por la optimizacion evolutiva, el tema central es siempre el mismo: como explorar eficientemente un espacio de posibilidades que crece exponencialmente.
+
+Los resultados fundamentales del bloque, como la optimalidad de A* (Hart et al., 1968), la eficiencia de IDA* (Korf, 1985), la poda alfa-beta (Knuth y Moore, 1975) y el paralelismo implicito de los AG (Holland, 1975), no son curiosidades academicas: son los cimientos sobre los que se construyen los optimizadores de bases de datos, los sistemas de planificacion, los motores de juego y los frameworks de AutoML que un cientifico de datos utiliza cotidianamente.
+
+La leccion mas profunda del No Free Lunch (Wolpert y Macready, 1997) es que no existe un algoritmo universal: la eleccion del metodo de busqueda correcto requiere comprender tanto la estructura del problema como las garantias y limitaciones de cada algoritmo. Esa comprension es precisamente lo que distingue al cientifico de datos del usuario de herramientas.
+
+---
+
+## Referencias
+
+Campbell, M., Hoane, A. J., y Hsu, F. H. (2002). Deep Blue. *Artificial Intelligence*, 134(1-2), 57-83. https://doi.org/10.1016/S0004-3702(01)00129-1
+
+Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. *Numerische Mathematik*, 1(1), 269-271. https://doi.org/10.1007/BF01386390
+
+Goldberg, D. E. (1989). *Genetic algorithms in search, optimization, and machine learning*. Addison-Wesley.
+
+Hart, P. E., Nilsson, N. J., y Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. *IEEE Transactions on Systems Science and Cybernetics*, 4(2), 100-107. https://doi.org/10.1109/TSSC.1968.300136
+
+Holland, J. H. (1975). *Adaptation in natural and artificial systems*. University of Michigan Press.
+
+Knuth, D. E., y Moore, R. W. (1975). An analysis of alpha-beta pruning. *Artificial Intelligence*, 6(4), 293-326. https://doi.org/10.1016/0004-3702(75)90019-3
+
+Korf, R. E. (1985). Depth-first iterative-deepening: An optimal admissible tree search. *Artificial Intelligence*, 27(1), 97-109. https://doi.org/10.1016/0004-3702(85)90084-0
+
+Martelli, A., y Montanari, U. (1973). Additive AND/OR graphs. *Proceedings of the Third International Joint Conference on Artificial Intelligence*, 1-11.
+
+Newell, A., y Simon, H. A. (1972). *Human problem solving*. Prentice-Hall.
+
+Nilsson, N. J. (1980). *Principles of artificial intelligence*. Tioga Publishing.
+
+Pearl, J. (1984). *Heuristics: Intelligent search strategies for computer problem solving*. Addison-Wesley.
+
+Russell, S., y Norvig, P. (2021). *Artificial intelligence: A modern approach* (4ta ed.). Pearson.
+
+Shannon, C. E. (1950). Programming a computer for playing chess. *The London, Edinburgh, and Dublin Philosophical Magazine*, 41(314), 256-275. https://doi.org/10.1080/14786445008521796
+
+Silver, D., Huang, A., Maddison, C. J., Guez, A., Sifre, L., van den Driessche, G., Schrittwieser, J., Antonoglou, I., Panneershelvam, V., Lanctot, M., Dieleman, S., Grewe, D., Nham, J., Kalchbrenner, N., Sutskever, I., Lillicrap, T., Leach, M., Kavukcuoglu, K., Graepel, T., y Hassabis, D. (2016). Mastering the game of Go with deep neural networks and tree search. *Nature*, 529(7587), 484-489. https://doi.org/10.1038/nature16961
+
+Silver, D., Schrittwieser, J., Simonyan, K., Antonoglou, I., Huang, A., Guez, A., Hubert, T., Baker, L., Lai, M., Bolton, A., Chen, Y., Lillicrap, T., Hui, F., Sifre, L., van den Driessche, G., Graepel, T., y Hassabis, D. (2017). Mastering the game of Go without human knowledge. *Nature*, 550(7676), 354-359. https://doi.org/10.1038/nature24270
+
+Von Neumann, J., y Morgenstern, O. (1944). *Theory of games and economic behavior*. Princeton University Press.
+
+Wolpert, D. H., y Macready, W. G. (1997). No free lunch theorems for optimization. *IEEE Transactions on Evolutionary Computation*, 1(1), 67-82. https://doi.org/10.1109/4235.585893
+
+
+======== FILE 2: _build_cuestionario.py ========
+"""
+Genera cuestionario separado en DOCX con las 20 preguntas del Bloque B.
+"""
+from docx import Document
+from docx.shared import Pt, Cm, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+import os, html, re
+
+OUT = os.path.join(os.path.dirname(__file__), "docs", "Cuestionario_BloqueB_Ruffo_Espinosa.docx")
+
+QUESTIONS = [
+    {"q": "¿Cuales son los 4 elementos de la formulacion de un problema de busqueda?",
+     "opts": ["Grafo, aristas, nodos, peso", "Estado inicial, estado meta, operadores, funcion de costo", "Entrada, salida, proceso, memoria", "Inicio, fin, condicion, ciclo"],
+     "correct": 1,
+     "explain": "La formulacion requiere: estado inicial, estado meta (o test de meta), operadores (acciones) y funcion de costo."},
+    {"q": "¿Cuantos estados alcanzables tiene el 8-puzzle?",
+     "opts": ["362,880", "181,440", "40,320", "3,628,800"],
+     "correct": 1,
+     "explain": "9! = 362,880 permutaciones totales, pero solo la mitad (181,440) son alcanzables desde cualquier configuracion dada (paridad de inversiones)."},
+    {"q": "¿Que algoritmo combina la optimalidad de BFS con la memoria de DFS?",
+     "opts": ["DLS (profundidad limitada)", "UCS (costo uniforme)", "IDS (profundizacion iterativa)", "A*"],
+     "correct": 2,
+     "explain": "IDS ejecuta DLS con limites crecientes (0,1,2...). Es completo y optimo como BFS, pero usa memoria O(bd) como DFS."},
+    {"q": "¿Cual es la complejidad espacial de BFS?",
+     "opts": ["O(bd)", "O(bm)", "O(b^d)", "O(d)"],
+     "correct": 2,
+     "explain": "BFS almacena toda la frontera en memoria, que en el peor caso es O(b^d) donde b es el factor de ramificacion y d la profundidad de la solucion."},
+    {"q": "¿La busqueda hacia atras es mejor cuando...?",
+     "opts": ["La meta no esta definida", "Hay muchas metas posibles", "La meta esta bien definida y el inicio es amplio", "El espacio de estados es pequeno"],
+     "correct": 2,
+     "explain": "Backward search funciona mejor cuando la meta es clara y el estado inicial generaria demasiadas ramas."},
+    {"q": "¿Que reduce la busqueda bidireccional?",
+     "opts": ["De O(b^d) a O(b^d * 2)", "De O(b^d) a O(b^(d/2))", "De O(b^d) a O(d)", "De O(b^d) a O(b*d)"],
+     "correct": 1,
+     "explain": "La bidireccional ejecuta dos busquedas de profundidad d/2 cada una, reduciendo de O(b^d) a O(2 * b^(d/2))."},
+    {"q": "¿Que significa que una heuristica sea admisible?",
+     "opts": ["Que siempre da el costo exacto", "Que nunca sobreestima el costo real", "Que es consistente", "Que es facil de calcular"],
+     "correct": 1,
+     "explain": "Admisible = h(n) <= h*(n) para todo nodo n. La heuristica nunca sobreestima el costo real al objetivo."},
+    {"q": "¿Que funcion usa A* para elegir el siguiente nodo?",
+     "opts": ["f(n) = h(n)", "f(n) = g(n)", "f(n) = g(n) + h(n)", "f(n) = max(g(n), h(n))"],
+     "correct": 2,
+     "explain": "A* combina el costo real acumulado g(n) con la estimacion heuristica h(n)."},
+    {"q": "¿Que condicion tiene una heuristica consistente?",
+     "opts": ["h(n) = h*(n)", "h(n) <= c(n,n') + h(n')", "h(n) >= h*(n)", "h(n) = 0 para todo n"],
+     "correct": 1,
+     "explain": "Consistencia (monotonia): h(n) <= c(n,n') + h(n') para todo sucesor n' de n. Implica admisibilidad."},
+    {"q": "¿En un grafo AND-OR, un nodo AND significa...?",
+     "opts": ["Elegir la mejor alternativa", "Resolver todos los subproblemas hijos", "Que no hay solucion", "Que el problema es trivial"],
+     "correct": 1,
+     "explain": "Un nodo AND indica descomposicion: el problema se resuelve solo si se resuelven TODOS sus subproblemas."},
+    {"q": "¿En Minimax, que hace el jugador MIN?",
+     "opts": ["Maximiza la utilidad", "Minimiza la utilidad", "Elige al azar", "No participa en la decision"],
+     "correct": 1,
+     "explain": "MIN busca minimizar el valor de utilidad (peor caso para MAX). Minimax asume que el oponente juega de forma optima."},
+    {"q": "¿Cuando se poda en alfa-beta?",
+     "opts": ["Cuando alfa = 0", "Cuando beta = 0", "Cuando alfa >= beta", "Cuando alfa + beta = 0"],
+     "correct": 2,
+     "explain": "Se poda cuando alfa >= beta. MAX ya tiene algo mejor (alfa) que lo que MIN le permitiria (beta)."},
+    {"q": "¿Cual es la complejidad de alfa-beta en el mejor caso?",
+     "opts": ["O(b^d)", "O(b^(d/2))", "O(bd)", "O(d*log(b))"],
+     "correct": 1,
+     "explain": "Con orden perfecto de nodos, alfa-beta reduce de O(b^d) a O(b^(d/2)), duplicando la profundidad explorable."},
+    {"q": "¿Que tecnica uso AlphaGo para vencer a Lee Sedol?",
+     "opts": ["Minimax puro", "Solo alfa-beta", "MCTS + redes neuronales", "Algoritmos geneticos"],
+     "correct": 2,
+     "explain": "AlphaGo (2016) combino Monte Carlo Tree Search con redes neuronales profundas entrenadas con partidas humanas y self-play."},
+    {"q": "¿Que es un cromosoma en un algoritmo genetico?",
+     "opts": ["Una funcion de aptitud", "Un operador genetico", "Una solucion candidata codificada", "La poblacion completa"],
+     "correct": 2,
+     "explain": "Un cromosoma es la representacion codificada de una solucion candidata."},
+    {"q": "¿Que operador genetico introduce diversidad para escapar de optimos locales?",
+     "opts": ["Seleccion", "Cruce", "Mutacion", "Elitismo"],
+     "correct": 2,
+     "explain": "La mutacion introduce cambios aleatorios pequenos que permiten explorar nuevas regiones del espacio de busqueda."},
+    {"q": "¿Que tipo de cruce es mejor para permutaciones como el TSP?",
+     "opts": ["Un punto", "Dos puntos", "Uniforme", "Order Crossover (OX)"],
+     "correct": 3,
+     "explain": "OX preserva el orden relativo de los genes, esencial en permutaciones. Los cruces de punto simple pueden generar soluciones invalidas."},
+    {"q": "¿Que pasa si la tasa de mutacion es muy alta (>30%)?",
+     "opts": ["Converge mas rapido al optimo", "Se destruyen buenas soluciones y se vuelve busqueda aleatoria", "No tiene ningun efecto", "Se eliminan todos los individuos"],
+     "correct": 1,
+     "explain": "Con mutacion excesiva, las buenas soluciones se corrompen constantemente. El AG se convierte en busqueda aleatoria."},
+    {"q": "¿Cual es la aptitud maxima en el problema de 8 reinas con la formulacion de pares no atacados?",
+     "opts": ["8", "16", "28", "56"],
+     "correct": 2,
+     "explain": "28 = C(8,2) = numero de pares posibles de reinas. Si ningun par se ataca, la aptitud es 28 (maxima)."},
+    {"q": "¿Cual algoritmo usarias para encontrar el camino optimo en un mapa con una buena heuristica de distancia?",
+     "opts": ["DFS", "Algoritmo genetico", "A* con heuristica admisible", "Minimax"],
+     "correct": 2,
+     "explain": "A* con heuristica admisible garantiza encontrar el camino optimo y es mucho mas eficiente que BFS gracias a la heuristica."},
+]
+
+def build():
+    doc = Document()
+
+    for section in doc.sections:
+        section.top_margin = Cm(2.54)
+        section.bottom_margin = Cm(2.54)
+        section.left_margin = Cm(2.54)
+        section.right_margin = Cm(2.54)
+
+    style = doc.styles['Normal']
+    style.font.name = 'Calibri'
+    style.font.size = Pt(12)
+    style.paragraph_format.space_after = Pt(4)
+    style.paragraph_format.line_spacing = 1.15
+
+    # Title
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("UNIVERSIDAD NACIONAL ROSARIO CASTELLANOS")
+    run.bold = True
+    run.font.size = Pt(14)
+    run.font.color.rgb = RGBColor(0x9F, 0x22, 0x41)
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("Inteligencia Artificial (LCDN4INT10) - 4o Semestre")
+    run.font.size = Pt(11)
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("Prof. Martin Humberto Llamas Haro")
+    run.font.size = Pt(11)
+
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("CUESTIONARIO - BLOQUE B: BUSQUEDA SIN INFORMACION")
+    run.bold = True
+    run.font.size = Pt(16)
+
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    run = p.add_run("Nombre: ________________________________     Fecha: ______________")
+    run.font.size = Pt(11)
+
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    run = p.add_run("Instrucciones: ")
+    run.bold = True
+    run.font.size = Pt(11)
+    run = p.add_run("Selecciona la respuesta correcta para cada pregunta. Cada pregunta vale 0.5 puntos (total: 10 puntos).")
+    run.font.size = Pt(11)
+
+    doc.add_paragraph()
+
+    # Questions
+    letters = "ABCD"
+    for qi, q in enumerate(QUESTIONS):
+        # Question number and text
+        p = doc.add_paragraph()
+        p.paragraph_format.space_before = Pt(10)
+        run = p.add_run(f"{qi+1}. {q['q']}")
+        run.bold = True
+        run.font.size = Pt(11)
+
+        # Options
+        for oi, opt in enumerate(q["opts"]):
+            p = doc.add_paragraph()
+            p.paragraph_format.left_indent = Cm(1)
+            p.paragraph_format.space_after = Pt(2)
+            p.paragraph_format.space_before = Pt(1)
+            run = p.add_run(f"    {letters[oi]}) {opt}")
+            run.font.size = Pt(11)
+
+    doc.add_page_break()
+
+    # Answer key
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("HOJA DE RESPUESTAS")
+    run.bold = True
+    run.font.size = Pt(14)
+
+    doc.add_paragraph()
+
+    tbl = doc.add_table(rows=21, cols=3)
+    tbl.style = 'Table Grid'
+
+    # Header
+    tbl.cell(0, 0).text = "Pregunta"
+    tbl.cell(0, 1).text = "Respuesta"
+    tbl.cell(0, 2).text = "Explicacion"
+    for ci in range(3):
+        for par in tbl.cell(0, ci).paragraphs:
+            for run in par.runs:
+                run.bold = True
+                run.font.size = Pt(10)
+
+    for qi, q in enumerate(QUESTIONS):
+        tbl.cell(qi+1, 0).text = str(qi+1)
+        tbl.cell(qi+1, 1).text = f"{letters[q['correct']]}) {q['opts'][q['correct']]}"
+        tbl.cell(qi+1, 2).text = q["explain"]
+        for ci in range(3):
+            for par in tbl.cell(qi+1, ci).paragraphs:
+                for run in par.runs:
+                    run.font.size = Pt(9)
+
+    core = doc.core_properties
+    core.author = "Daniel Ruffo Godinez"
+    core.title = "Cuestionario Bloque B - IA"
+
+    doc.save(OUT)
+    print(f"Cuestionario generado: {OUT}")
+
+if __name__ == "__main__":
+    build()
+
+
+======== FILE 3: _build_docx.py ========
+"""
+Genera el documento academico extenso en DOCX desde el markdown.
+Full-page width, parrafos largos, formato profesional.
+"""
+from docx import Document
+from docx.shared import Inches, Pt, Cm, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml.ns import qn
+import re, os
+
+SRC = os.path.join(os.path.dirname(__file__), "docs", "documento_academico_bloque_b.md")
+OUT = os.path.join(os.path.dirname(__file__), "docs", "Documento_Academico_BloqueB_Ruffo_Espinosa.docx")
+
+def build():
+    doc = Document()
+
+    # Page setup: normal margins, full width
+    for section in doc.sections:
+        section.top_margin = Cm(2.54)
+        section.bottom_margin = Cm(2.54)
+        section.left_margin = Cm(2.54)
+        section.right_margin = Cm(2.54)
+        section.page_width = Cm(21.59)
+        section.page_height = Cm(27.94)
+
+    style = doc.styles['Normal']
+    style.font.name = 'Calibri'
+    style.font.size = Pt(12)
+    style.paragraph_format.space_after = Pt(6)
+    style.paragraph_format.line_spacing = 1.15
+    style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
+    for level in range(1, 4):
+        hs = doc.styles[f'Heading {level}']
+        hs.font.name = 'Calibri'
+        hs.font.color.rgb = RGBColor(0x23, 0x2F, 0x3F)
+        if level == 1:
+            hs.font.size = Pt(16)
+        elif level == 2:
+            hs.font.size = Pt(14)
+        else:
+            hs.font.size = Pt(12)
+
+    # Read markdown
+    with open(SRC, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    # --- COVER PAGE ---
+    for _ in range(3):
+        doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("UNIVERSIDAD NACIONAL ROSARIO CASTELLANOS")
+    run.bold = True
+    run.font.size = Pt(16)
+    run.font.color.rgb = RGBColor(0x9F, 0x22, 0x41)
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("LICENCIATURA EN CIENCIA DE DATOS PARA NEGOCIOS")
+    run.bold = True
+    run.font.size = Pt(13)
+    run.font.color.rgb = RGBColor(0x23, 0x5B, 0x4E)
+
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("DOCUMENTO ACADEMICO EN EXTENSO")
+    run.bold = True
+    run.font.size = Pt(18)
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("BLOQUE B: BUSQUEDA SIN INFORMACION")
+    run.bold = True
+    run.font.size = Pt(15)
+    run.font.color.rgb = RGBColor(0x28, 0xB4, 0xE7)
+
+    for _ in range(2):
+        doc.add_paragraph()
+
+    # Info table on cover
+    info = [
+        ("Asignatura", "Inteligencia Artificial (LCDN4INT10)"),
+        ("Unidad Tematica", "Bloque B: Busqueda sin Informacion"),
+        ("Programa Academico", "Licenciatura en Ciencia de Datos para Negocios"),
+        ("Institucion", "Universidad Nacional Rosario Castellanos"),
+        ("Ciclo Lectivo", "Cuarto Semestre"),
+        ("Docente", "Martin Humberto Llamas Haro"),
+    ]
+    tbl = doc.add_table(rows=len(info), cols=2)
+    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, (k, v) in enumerate(info):
+        c0 = tbl.cell(i, 0)
+        c0.text = k
+        for par in c0.paragraphs:
+            for run in par.runs:
+                run.bold = True
+                run.font.size = Pt(11)
+        c1 = tbl.cell(i, 1)
+        c1.text = v
+        for par in c1.paragraphs:
+            for run in par.runs:
+                run.font.size = Pt(11)
+
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("Equipo")
+    run.bold = True
+    run.font.size = Pt(12)
+
+    team_tbl = doc.add_table(rows=2, cols=2)
+    team_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    team_tbl.cell(0, 0).text = "Daniel Ruffo"
+    team_tbl.cell(0, 1).text = "Investigacion, desarrollo, arquitectura del repositorio"
+    team_tbl.cell(1, 0).text = "Giovana Espinosa"
+    team_tbl.cell(1, 1).text = "Investigacion, revision, validacion academica"
+    for row in team_tbl.rows:
+        for cell in row.cells:
+            for par in cell.paragraphs:
+                for run in par.runs:
+                    run.font.size = Pt(11)
+
+    doc.add_paragraph()
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("Ciudad de Mexico, Mexico, 2026")
+    run.font.size = Pt(11)
+
+    doc.add_page_break()
+
+    # --- BODY: parse markdown ---
+    # Skip the cover section in the MD (lines until first "## 1.")
+    body_start = 0
+    for i, line in enumerate(lines):
+        if line.strip().startswith("## Indice"):
+            body_start = i
+            break
+
+    # Table of Contents heading
+    doc.add_heading("Indice", level=1)
+
+    in_toc = True
+    in_table = False
+    table_rows = []
+    in_references = False
+    i = body_start + 1
+
+    while i < len(lines):
+        line = lines[i].rstrip()
+
+        # Detect end of TOC
+        if in_toc:
+            if line.startswith("---"):
+                in_toc = False
+                doc.add_page_break()
+                i += 1
+                continue
+            if line.strip():
+                # TOC entry
+                text = line.strip().lstrip("0123456789. ")
+                p = doc.add_paragraph(line.strip())
+                p.paragraph_format.space_after = Pt(2)
+                p.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            i += 1
+            continue
+
+        # Skip horizontal rules
+        if line.startswith("---"):
+            i += 1
+            continue
+
+        # Headings
+        if line.startswith("### "):
+            heading_text = line[4:].strip()
+            doc.add_heading(heading_text, level=3)
+            i += 1
+            continue
+
+        if line.startswith("## "):
+            heading_text = line[3:].strip()
+            if heading_text == "Referencias":
+                in_references = True
+            doc.add_heading(heading_text, level=2)
+            if heading_text.startswith("1.") or heading_text.startswith("2.") or heading_text.startswith("3.") or heading_text.startswith("4.") or heading_text.startswith("5.") or heading_text.startswith("6.") or heading_text.startswith("7.") or heading_text.startswith("8.") or heading_text.startswith("9.") or heading_text.startswith("10."):
+                pass
+            i += 1
+            continue
+
+        if line.startswith("# "):
+            heading_text = line[2:].strip()
+            doc.add_heading(heading_text, level=1)
+            i += 1
+            continue
+
+        # Tables
+        if "|" in line and not line.strip().startswith("-"):
+            cells = [c.strip() for c in line.split("|")[1:-1]]
+            if cells:
+                if not in_table:
+                    in_table = True
+                    table_rows = [cells]
+                else:
+                    # skip separator row
+                    if all(set(c.strip()) <= set("-: ") for c in cells):
+                        i += 1
+                        continue
+                    table_rows.append(cells)
+                i += 1
+                continue
+        elif in_table:
+            # End of table, render it
+            if table_rows:
+                ncols = max(len(r) for r in table_rows)
+                tbl = doc.add_table(rows=len(table_rows), cols=ncols)
+                tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+                # Style: light grid
+                tbl.style = 'Table Grid'
+                for ri, row_data in enumerate(table_rows):
+                    for ci, val in enumerate(row_data):
+                        cell = tbl.cell(ri, ci)
+                        cell.text = val.replace("**", "")
+                        for par in cell.paragraphs:
+                            par.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                            for run in par.runs:
+                                run.font.size = Pt(10)
+                                if ri == 0:
+                                    run.bold = True
+            in_table = False
+            table_rows = []
+            # Don't skip this line, process it below
+
+        # Bullet points
+        if line.startswith("- **") or line.startswith("- "):
+            text = line[2:].strip()
+            text = format_inline(text)
+            p = doc.add_paragraph(style='List Bullet')
+            add_formatted_runs(p, text)
+            i += 1
+            continue
+
+        # Numbered list
+        m = re.match(r"^(\d+)\.\s+", line)
+        if m and not line.startswith("## "):
+            text = line[m.end():].strip()
+            text = format_inline(text)
+            p = doc.add_paragraph(style='List Number')
+            add_formatted_runs(p, text)
+            i += 1
+            continue
+
+        # Empty line
+        if not line.strip():
+            i += 1
+            continue
+
+        # Regular paragraph - collect continuation lines for full paragraphs
+        para_lines = [line]
+        i += 1
+        while i < len(lines):
+            next_line = lines[i].rstrip()
+            if (not next_line.strip() or next_line.startswith("#") or
+                next_line.startswith("---") or next_line.startswith("- ") or
+                next_line.startswith("|") or re.match(r"^\d+\.\s+", next_line)):
+                break
+            para_lines.append(next_line)
+            i += 1
+
+        full_text = " ".join(l.strip() for l in para_lines)
+        full_text = format_inline(full_text)
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        add_formatted_runs(p, full_text)
+
+    # Flush any remaining table
+    if in_table and table_rows:
+        ncols = max(len(r) for r in table_rows)
+        tbl = doc.add_table(rows=len(table_rows), cols=ncols)
+        tbl.style = 'Table Grid'
+        for ri, row_data in enumerate(table_rows):
+            for ci, val in enumerate(row_data):
+                cell = tbl.cell(ri, ci)
+                cell.text = val.replace("**", "")
+
+    # Clean metadata
+    core = doc.core_properties
+    core.author = "Daniel Ruffo Godinez"
+    core.title = "Documento Academico en Extenso - Bloque B IA"
+    core.subject = "Inteligencia Artificial - Busqueda sin Informacion"
+    core.keywords = "IA, busqueda, A*, minimax, geneticos, UNRC, LCDN"
+
+    doc.save(OUT)
+    print(f"DOCX generado: {OUT}")
+    print(f"Paginas estimadas: ~{len(lines)//45}")
+
+
+def format_inline(text):
+    """Clean markdown inline formatting markers for later processing."""
+    # Remove double asterisks but mark for bold
+    return text
+
+
+def add_formatted_runs(paragraph, text):
+    """Add runs with bold/italic formatting from markdown-style markers."""
+    # Split on **...**  for bold
+    parts = re.split(r'(\*\*.*?\*\*)', text)
+    for part in parts:
+        if part.startswith("**") and part.endswith("**"):
+            run = paragraph.add_run(part[2:-2])
+            run.bold = True
+            run.font.size = Pt(12)
+            run.font.name = 'Calibri'
+        elif part.startswith("*") and part.endswith("*") and len(part) > 2:
+            run = paragraph.add_run(part[1:-1])
+            run.italic = True
+            run.font.size = Pt(12)
+            run.font.name = 'Calibri'
+        else:
+            # Handle italic within non-bold text
+            sub_parts = re.split(r'(\*[^*]+\*)', part)
+            for sp in sub_parts:
+                if sp.startswith("*") and sp.endswith("*") and len(sp) > 2:
+                    run = paragraph.add_run(sp[1:-1])
+                    run.italic = True
+                    run.font.size = Pt(12)
+                    run.font.name = 'Calibri'
+                else:
+                    if sp:
+                        run = paragraph.add_run(sp)
+                        run.font.size = Pt(12)
+                        run.font.name = 'Calibri'
+
+
+if __name__ == "__main__":
+    build()
+
+
+======== FILE 4: references/references.bib ========
+@book{russell2021,
+  author    = {Russell, Stuart and Norvig, Peter},
+  title     = {Artificial Intelligence: A Modern Approach},
+  edition   = {4},
+  publisher = {Pearson},
+  year      = {2021},
+  isbn      = {978-0134610993}
+}
+
+@article{hart1968,
+  author  = {Hart, Peter E. and Nilsson, Nils J. and Raphael, Bertram},
+  title   = {A Formal Basis for the Heuristic Determination of Minimum Cost Paths},
+  journal = {IEEE Transactions on Systems Science and Cybernetics},
+  volume  = {4},
+  number  = {2},
+  pages   = {100--107},
+  year    = {1968},
+  doi     = {10.1109/TSSC.1968.300136}
+}
+
+@article{knuth1975,
+  author  = {Knuth, Donald E. and Moore, Ronald W.},
+  title   = {An Analysis of Alpha-Beta Pruning},
+  journal = {Artificial Intelligence},
+  volume  = {6},
+  number  = {4},
+  pages   = {293--326},
+  year    = {1975},
+  doi     = {10.1016/0004-3702(75)90019-3}
+}
+
+@article{korf1985,
+  author  = {Korf, Richard E.},
+  title   = {Depth-First Iterative-Deepening: An Optimal Admissible Tree Search},
+  journal = {Artificial Intelligence},
+  volume  = {27},
+  number  = {1},
+  pages   = {97--109},
+  year    = {1985},
+  doi     = {10.1016/0004-3702(85)90084-0}
+}
+
+@article{silver2016,
+  author  = {Silver, David and Huang, Aja and Maddison, Chris J. and Guez, Arthur and Sifre, Laurent and van den Driessche, George and Schrittwieser, Julian and Antonoglou, Ioannis and Panneershelvam, Veda and Lanctot, Marc and Dieleman, Sander and Grewe, Dominik and Nham, John and Kalchbrenner, Nal and Sutskever, Ilya and Lillicrap, Timothy and Leach, Madeleine and Kavukcuoglu, Koray and Graepel, Thore and Hassabis, Demis},
+  title   = {Mastering the game of Go with deep neural networks and tree search},
+  journal = {Nature},
+  volume  = {529},
+  number  = {7587},
+  pages   = {484--489},
+  year    = {2016},
+  doi     = {10.1038/nature16961}
+}
+
+@article{silver2017,
+  author  = {Silver, David and Schrittwieser, Julian and Simonyan, Karen and Antonoglou, Ioannis and Huang, Aja and Guez, Arthur and Hubert, Thomas and Baker, Lucas and Lai, Matthew and Bolton, Adrian and Chen, Yutian and Lillicrap, Timothy and Hui, Fan and Sifre, Laurent and van den Driessche, George and Graepel, Thore and Hassabis, Demis},
+  title   = {Mastering the game of Go without human knowledge},
+  journal = {Nature},
+  volume  = {550},
+  number  = {7676},
+  pages   = {354--359},
+  year    = {2017},
+  doi     = {10.1038/nature24270}
+}
+
+@book{holland1975,
+  author    = {Holland, John H.},
+  title     = {Adaptation in Natural and Artificial Systems},
+  publisher = {University of Michigan Press},
+  year      = {1975}
+}
+
+@article{wolpert1997,
+  author  = {Wolpert, David H. and Macready, William G.},
+  title   = {No Free Lunch Theorems for Optimization},
+  journal = {IEEE Transactions on Evolutionary Computation},
+  volume  = {1},
+  number  = {1},
+  pages   = {67--82},
+  year    = {1997},
+  doi     = {10.1109/4235.585893}
+}
+
+@article{kocsis2006,
+  author  = {Kocsis, Levente and Szepesvari, Csaba},
+  title   = {Bandit Based Monte-Carlo Planning},
+  journal = {ECML},
+  pages   = {282--293},
+  year    = {2006},
+  doi     = {10.1007/11871842_29}
+}
+
+@article{brown2019,
+  author  = {Brown, Noam and Sandholm, Tuomas},
+  title   = {Superhuman AI for multiplayer poker},
+  journal = {Science},
+  volume  = {365},
+  number  = {6456},
+  pages   = {885--890},
+  year    = {2019},
+  doi     = {10.1126/science.aay2400}
+}
+
+@article{campbell2002,
+  author  = {Campbell, Murray and Hoane, A. Joseph and Hsu, Feng-hsiung},
+  title   = {Deep Blue},
+  journal = {Artificial Intelligence},
+  volume  = {134},
+  number  = {1-2},
+  pages   = {57--83},
+  year    = {2002},
+  doi     = {10.1016/S0004-3702(01)00129-1}
+}
+
+@article{dijkstra1959,
+  author  = {Dijkstra, Edsger W.},
+  title   = {A note on two problems in connexion with graphs},
+  journal = {Numerische Mathematik},
+  volume  = {1},
+  number  = {1},
+  pages   = {269--271},
+  year    = {1959},
+  doi     = {10.1007/BF01386390}
+}
+
+@book{goldberg1989,
+  author    = {Goldberg, David E.},
+  title     = {Genetic Algorithms in Search, Optimization, and Machine Learning},
+  publisher = {Addison-Wesley},
+  year      = {1989}
+}
+
+@article{martelli1973,
+  author  = {Martelli, Alberto and Montanari, Ugo},
+  title   = {Additive AND/OR Graphs},
+  journal = {Proceedings of the Third International Joint Conference on Artificial Intelligence},
+  pages   = {1--11},
+  year    = {1973}
+}
+
+@book{newell1972,
+  author    = {Newell, Allen and Simon, Herbert A.},
+  title     = {Human Problem Solving},
+  publisher = {Prentice-Hall},
+  year      = {1972}
+}
+
+@book{nilsson1980,
+  author    = {Nilsson, Nils J.},
+  title     = {Principles of Artificial Intelligence},
+  publisher = {Tioga Publishing},
+  year      = {1980}
+}
+
+@book{pearl1984,
+  author    = {Pearl, Judea},
+  title     = {Heuristics: Intelligent Search Strategies for Computer Problem Solving},
+  publisher = {Addison-Wesley},
+  year      = {1984}
+}
+
+@article{shannon1950,
+  author  = {Shannon, Claude E.},
+  title   = {Programming a Computer for Playing Chess},
+  journal = {The London, Edinburgh, and Dublin Philosophical Magazine},
+  volume  = {41},
+  number  = {314},
+  pages   = {256--275},
+  year    = {1950},
+  doi     = {10.1080/14786445008521796}
+}
+
+@book{vonneumann1944,
+  author    = {Von Neumann, John and Morgenstern, Oskar},
+  title     = {Theory of Games and Economic Behavior},
+  publisher = {Princeton University Press},
+  year      = {1944}
+}
+
+
+======== FILE 5: CLAUDE.md ========
+# CLAUDE.md — Bloque B: Busqueda sin Informacion
+
+## Proposito de este archivo
+
+Este archivo proporciona contexto al agente de IA (Claude Code) sobre el proyecto. En una clase de Inteligencia Artificial, esto no es solo una conveniencia tecnica sino una demostracion de como se configura un agente con contexto adecuado para que sus outputs sean utiles y verificables.
+
+Un agente sin contexto alucina. Un agente con contexto acotado produce outputs verificables. Este archivo es el mecanismo de acotacion.
+
+## Contexto del proyecto
+
+- **Materia:** LCDN4INT10 Inteligencia Artificial, 4o semestre
+- **Bloque:** B - Busqueda sin informacion
+- **Universidad:** Universidad Nacional Rosario Castellanos (UNRC)
+- **Profesor:** Martin Humberto Llamas Haro
+- **Equipo:** Daniel Ruffo, Giovana Espinosa
+- **Programa:** Licenciatura en Ciencia de Datos para Negocios (LCDN)
+
+## Saberes evaluados (fuente: UCA oficial)
+
+### Declarativos (saber que)
+- Busqueda hacia adelante y hacia atras
+- Reduccion de problemas: algoritmos A, A* y AO*
+- Minimax y algoritmos geneticos
+
+### Procedimentales (saber hacer)
+- Modelar un problema como espacio de estados
+- Definir y evaluar funciones heuristicas
+- Analizar propiedades de algoritmos: completitud, optimalidad, complejidad temporal y espacial
+- Optimizar busqueda con poda alfa-beta
+- Definir Minimax, aplicar limites de tiempo, integrar ML
+- Definir AG, implementar seleccion y operadores geneticos
+
+## Estructura del repositorio
+
+```
+ia-bloque-b-busqueda/
+├── presentacion/
+│   └── ia_bloque_b.html    ← Guia interactiva (7 tabs, quiz, defensa)
+├── docs/
+│   ├── contenido_bloque_b.md       ← Resumen teorico
+│   └── deep_research_bloque_b.md   ← Investigacion profunda (Kimi K3)
+├── references/
+│   └── references.bib              ← BibTeX con fuentes primarias
+├── tests/                          ← Tests si aplica
+├── .github/workflows/ci.yml        ← CI pipeline
+├── ARCHITECTURE.md                 ← Decisiones de arquitectura (ADRs)
+├── AI_USAGE.md                     ← Transparencia en uso de IA
+├── CLAUDE.md                       ← Este archivo
+├── README.md                       ← Entrada principal
+└── requirements.txt                ← Dependencias Python
+```
+
+## Reglas para el agente
+
+1. **Contenido verificable:** toda afirmacion debe tener fuente. Si no hay fuente, marcar como "pendiente de verificacion"
+2. **Respuestas del quiz:** cada respuesta correcta debe ser verificable contra Russell & Norvig AIMA o el paper original
+3. **Espanol:** todo el contenido en espanol, terminos tecnicos en ingles entre parentesis cuando sea estandar
+4. **Sin LaTeX en HTML:** formulas en texto plano o HTML (no $...$ que no renderiza en el navegador)
+5. **Accesibilidad:** tabindex, role, onkeydown en todos los elementos interactivos
+6. **Dark mode:** CSS custom properties con prefers-color-scheme Y data-theme
+
+## Fuentes primarias del bloque
+
+| Tema | Fuente primaria |
+|------|----------------|
+| A* optimalidad | Hart, Nilsson & Raphael (1968) |
+| Alfa-beta | Knuth & Moore (1975) |
+| IDS | Korf (1985) |
+| MCTS | Browne et al. survey; Kocsis & Szepesvar (2006) |
+| AlphaGo | Silver et al., Nature (2016/2017) |
+| AG schema theorem | Holland (1975) |
+| No Free Lunch | Wolpert & Macready (1997) |
+| Libro de texto | Russell & Norvig, AIMA 4th ed. |
+
+
+======== FILE 6: eval_quiz.py ========
+"""
+eval_quiz.py - Evaluador de respuestas del quiz interactivo
+============================================================
+Valida que las respuestas del quiz en el HTML sean correctas
+comparandolas contra un ground truth derivado de fuentes academicas.
+
+Uso:
+    python eval_quiz.py presentacion/ia_bloque_b.html
+
+Por que existe este script:
+    En un sistema con IA generativa, las respuestas pueden "deslizarse"
+    durante ediciones. Este eval detecta si alguna respuesta cambio
+    o si el numero de preguntas no coincide con lo esperado.
+    Es un guardrail contra alucinacion en contenido educativo.
+"""
+
+import re
+import sys
+import json
+
+EXPECTED_QUESTIONS = 20
+
+GROUND_TRUTH = {
+    0: {"correct": 1, "topic": "Formulacion de problemas de busqueda"},
+    1: {"correct": 1, "topic": "Estados alcanzables 8-puzzle"},
+    2: {"correct": 2, "topic": "IDS combina BFS optimalidad + DFS memoria"},
+    3: {"correct": 2, "topic": "Complejidad espacial BFS"},
+    4: {"correct": 2, "topic": "Busqueda hacia atras"},
+    5: {"correct": 1, "topic": "Busqueda bidireccional"},
+    6: {"correct": 1, "topic": "Heuristica admisible"},
+    7: {"correct": 2, "topic": "Funcion de A*"},
+    8: {"correct": 1, "topic": "Heuristica consistente"},
+    9: {"correct": 1, "topic": "Nodo AND"},
+    10: {"correct": 1, "topic": "MIN en minimax"},
+    11: {"correct": 2, "topic": "Poda alfa-beta"},
+    12: {"correct": 1, "topic": "Complejidad mejor caso alfa-beta"},
+    13: {"correct": 2, "topic": "AlphaGo"},
+    14: {"correct": 2, "topic": "Cromosoma en AG"},
+    15: {"correct": 2, "topic": "Operador de diversidad"},
+    16: {"correct": 3, "topic": "Cruce para permutaciones"},
+    17: {"correct": 1, "topic": "Tasa de mutacion alta"},
+    18: {"correct": 2, "topic": "Fitness maximo 8-reinas"},
+    19: {"correct": 2, "topic": "Algoritmo optimo con heuristica"},
+}
+
+
+def extract_quiz_answers(html_path):
+    """Extrae los indices 'correct' del array quizData en el HTML."""
+    with open(html_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    pattern = r"correct:\s*(\d+)"
+    matches = re.findall(pattern, content)
+    return [int(m) for m in matches]
+
+
+def run_eval(html_path):
+    answers = extract_quiz_answers(html_path)
+
+    print(f"{'='*60}")
+    print(f"EVAL: Quiz Bloque B")
+    print(f"{'='*60}")
+    print(f"Preguntas encontradas: {len(answers)}")
+    print(f"Preguntas esperadas:   {EXPECTED_QUESTIONS}")
+    print()
+
+    if len(answers) != EXPECTED_QUESTIONS:
+        print(f"FAIL: Se esperaban {EXPECTED_QUESTIONS} preguntas, se encontraron {len(answers)}")
+        return False
+
+    all_pass = True
+    for i, answer in enumerate(answers):
+        gt = GROUND_TRUTH.get(i)
+        if gt is None:
+            print(f"  Q{i+1:02d}: WARN - Sin ground truth")
+            continue
+
+        status = "PASS" if answer == gt["correct"] else "FAIL"
+        if status == "FAIL":
+            all_pass = False
+            print(f"  Q{i+1:02d}: {status} - Esperado {gt['correct']}, encontrado {answer} ({gt['topic']})")
+        else:
+            print(f"  Q{i+1:02d}: {status} - {gt['topic']}")
+
+    print()
+    print(f"{'='*60}")
+    if all_pass:
+        print("RESULTADO: ALL PASS - Todas las respuestas verificadas")
+    else:
+        print("RESULTADO: FAIL - Hay respuestas incorrectas")
+    print(f"{'='*60}")
+
+    return all_pass
+
+
+if __name__ == "__main__":
+    path = sys.argv[1] if len(sys.argv) > 1 else "presentacion/ia_bloque_b.html"
+    success = run_eval(path)
+    sys.exit(0 if success else 1)
+
+
+======== FILE 7: docs/contenido_bloque_b.md ========
+# Bloque B: Busqueda sin Informacion — Resumen Teorico
+
+## 1. Formulacion de problemas como espacio de estados
+
+Un problema de busqueda se define por cuatro elementos:
+- **Estado inicial:** configuracion de partida
+- **Acciones/operadores:** transiciones validas entre estados
+- **Test de meta:** condicion que define el objetivo
+- **Funcion de costo:** costo de cada paso (path cost)
+
+El espacio de estados es el grafo implicito de todas las configuraciones alcanzables desde el estado inicial mediante la aplicacion de operadores.
+
+**Ejemplo canonico:** el 8-puzzle tiene 9!/2 = 181,440 estados alcanzables (la mitad del total, ya que la paridad de las inversiones divide el espacio en dos componentes desconectadas).
+
+## 2. Busqueda sin informacion (uninformed search)
+
+### BFS (Breadth-First Search)
+- Explora por niveles (FIFO)
+- Completo: si, si b es finito
+- Optimo: si, si costos son uniformes
+- Complejidad temporal: O(b^d)
+- Complejidad espacial: O(b^d) — principal desventaja
+
+### DFS (Depth-First Search)
+- Explora en profundidad primero (LIFO)
+- Completo: no, en espacios infinitos
+- Optimo: no
+- Complejidad espacial: O(bm) — ventaja principal
+
+### IDS (Iterative Deepening Search)
+- Combina optimalidad de BFS con memoria de DFS
+- Complejidad temporal: O(b^d) (el re-trabajo es factor constante)
+- Complejidad espacial: O(bd) — lineal
+- **Algoritmo preferido cuando no hay heuristica y se desconoce la profundidad**
+
+### Busqueda bidireccional
+- Busca desde inicio y meta simultaneamente
+- Reduce complejidad de O(b^d) a O(b^{d/2})
+- Requiere que la meta sea explicita y los operadores reversibles
+
+## 3. Busqueda hacia adelante y hacia atras
+
+- **Hacia adelante (forward):** del estado inicial hacia la meta. Natural cuando el estado inicial es unico
+- **Hacia atras (backward):** de la meta hacia el inicio. Mejor cuando hay muchos estados iniciales o el factor de ramificacion hacia atras es menor
+- **Bidireccional:** combina ambas. La frontera de busqueda se encuentra en el medio
+
+## 4. Busqueda informada: A, A*, AO*
+
+### Heuristicas
+- **Admisible:** h(n) <= h*(n), nunca sobreestima el costo real
+- **Consistente (monotona):** h(n) <= c(n,n') + h(n'), satisface desigualdad triangular
+- Toda heuristica consistente es admisible (pero no al reves)
+
+### Algoritmo A*
+- f(n) = g(n) + h(n)
+- g(n): costo acumulado desde el inicio
+- h(n): estimacion heuristica al objetivo
+- Con heuristica admisible: A* es optimo y completo
+- Con heuristica consistente: A* no re-expande nodos (eficiente)
+
+### Grafos AND-OR y AO*
+- Para problemas descomponibles en subproblemas
+- Nodo AND: todos los hijos deben resolverse
+- Nodo OR: basta con resolver un hijo
+- AO* propaga costos bottom-up en el grafo solucion
+
+## 5. Minimax y poda alfa-beta
+
+### Minimax
+- Para juegos de suma cero entre dos jugadores
+- MAX maximiza la utilidad, MIN la minimiza
+- Explora todo el arbol de juego
+- Complejidad: O(b^m) donde m es profundidad maxima
+
+### Poda alfa-beta
+- Optimizacion de minimax que poda ramas que no afectan la decision
+- alfa: mejor valor para MAX en el camino actual
+- beta: mejor valor para MIN en el camino actual
+- Poda cuando alfa >= beta
+- Mejor caso (orden perfecto): O(b^{m/2}) — duplica la profundidad explorable
+- Caso promedio: O(b^{3m/4})
+
+### MCTS (Monte Carlo Tree Search)
+- Alternativa a minimax para juegos con factor de ramificacion enorme
+- 4 fases: seleccion (UCT), expansion, simulacion (rollout), retropropagacion
+- Usado por AlphaGo (Silver et al., 2016) combinado con redes neuronales
+
+## 6. Algoritmos geneticos
+
+### Componentes
+- **Cromosoma:** representacion de una solucion candidata
+- **Poblacion:** conjunto de cromosomas
+- **Fitness:** funcion de aptitud que evalua cada individuo
+- **Seleccion:** ruleta, torneo, ranking
+- **Cruce (crossover):** combina dos padres para crear hijos
+- **Mutacion:** perturbacion aleatoria para mantener diversidad
+
+### Tipos de cruce
+- Un punto, dos puntos, uniforme (para cadenas binarias)
+- OX (Order Crossover): para permutaciones como el TSP
+- PMX (Partially Mapped Crossover)
+
+### Parametros criticos
+- Tasa de mutacion: tipicamente 0.5%-5%. Muy alta (>30%) = busqueda aleatoria
+- Tamano de poblacion: balance entre diversidad y costo computacional
+- Criterio de parada: generaciones maximas, convergencia, fitness objetivo
+
+### Teorema del esquema (Holland, 1975)
+Los esquemas cortos, de bajo orden y alta aptitud reciben un numero exponencialmente creciente de representantes en generaciones sucesivas.
+
+## Fuentes principales
+
+- Russell, S. & Norvig, P. (2021). Artificial Intelligence: A Modern Approach, 4th ed.
+- Hart, P.E., Nilsson, N.J. & Raphael, B. (1968). A Formal Basis for the Heuristic Determination of Minimum Cost Paths. IEEE Transactions on SSC.
+- Knuth, D.E. & Moore, R.W. (1975). An Analysis of Alpha-Beta Pruning. Artificial Intelligence.
+- Korf, R.E. (1985). Depth-First Iterative-Deepening. Artificial Intelligence.
+- Silver, D. et al. (2016). Mastering the Game of Go with Deep Neural Networks and Tree Search. Nature.
+- Holland, J.H. (1975). Adaptation in Natural and Artificial Systems. U of Michigan Press.
