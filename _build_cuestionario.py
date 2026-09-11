@@ -14,7 +14,7 @@ QUESTIONS = [
      "correct": 1,
      "explain": "La formulacion requiere: estado inicial, estado meta (o test de meta), operadores (acciones) y funcion de costo."},
     {"q": "¿Cuantos estados alcanzables tiene el 8-puzzle?",
-     "opts": ["362,880", "181,440", "40,320", "9!"],
+     "opts": ["362,880", "181,440", "40,320", "3,628,800"],
      "correct": 1,
      "explain": "9! = 362,880 permutaciones totales, pero solo la mitad (181,440) son alcanzables desde cualquier configuracion dada (paridad de inversiones)."},
     {"q": "¿Que algoritmo combina la optimalidad de BFS con la memoria de DFS?",

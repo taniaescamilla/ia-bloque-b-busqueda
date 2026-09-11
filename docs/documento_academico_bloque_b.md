@@ -93,7 +93,7 @@ Un problema de busqueda se define formalmente como una tupla (S, s0, A, T, G, c)
 
 El espacio de estados puede representarse como un grafo dirigido donde los nodos corresponden a estados y las aristas a acciones. La solucion al problema es un camino desde s0 hasta algun estado en G, y la solucion optima es aquella con costo minimo.
 
-La complejidad del espacio de estados es un factor determinante en la seleccion del algoritmo. Para el ajedrez, el espacio tiene aproximadamente 10^47 estados legales (Shannon, 1950). Para el juego de Go, la cifra asciende a 10^170, lo que hace inviable cualquier enumeracion exhaustiva y motiva el uso de heuristicas y metodos de Monte Carlo (Silver et al., 2016).
+La complejidad del espacio de estados es un factor determinante en la seleccion del algoritmo. Para el ajedrez, el espacio tiene aproximadamente 10^43 estados legales (Shannon, 1950). Para el juego de Go, la cifra asciende a 10^170, lo que hace inviable cualquier enumeracion exhaustiva y motiva el uso de heuristicas y metodos de Monte Carlo (Silver et al., 2016).
 
 ### 2.2. Ejemplo: el rompecabezas de 8 piezas
 
@@ -145,7 +145,7 @@ Korf (1985) propuso la busqueda iterativa en profundidad (Iterative Deepening Se
 - Tiempo: O(b^d).
 - Espacio: O(bd).
 
-Aunque pareciera ineficiente regenerar los niveles superiores, el trabajo redundante es insignificante: la capa d tiene b^d nodos, mientras que todas las capas anteriores suman b^d (b/(b-1)), un factor constante. IDS es el algoritmo de busqueda no informada preferido cuando el espacio de estados es grande y la profundidad de la solucion es desconocida (Russell y Norvig, 2021).
+Aunque pareciera ineficiente regenerar los niveles superiores, el trabajo redundante es insignificante: la capa d tiene b^d nodos, y el trabajo total de IDS es aproximadamente b^d * b/(b-1), un factor constante respecto a BFS. IDS es el algoritmo de busqueda no informada preferido cuando el espacio de estados es grande y la profundidad de la solucion es desconocida (Russell y Norvig, 2021).
 
 ### 3.4. Busqueda de costo uniforme
 
@@ -255,7 +255,7 @@ AO* es relevante en planificacion con incertidumbre, donde las acciones pueden t
 
 Un juego de adversario de suma cero con informacion perfecta se modela como un arbol donde los niveles alternan entre los movimientos de MAX (jugador que maximiza) y MIN (jugador que minimiza). En los nodos terminales, una funcion de utilidad asigna un valor numerico que refleja el resultado (victoria, derrota, empate).
 
-Von Neumann y Morgenstern (1944) demostraron el teorema minimax: en un juego finito de suma cero con informacion perfecta, existe una estrategia optima para cada jugador y un valor del juego determinado. Este resultado fundamental establece que la teoria de juegos tiene una solucion racional bien definida.
+Von Neumann demostro el teorema minimax en 1928, formalizado extensamente en Von Neumann y Morgenstern (1944): en un juego finito de suma cero con informacion perfecta, existe una estrategia optima para cada jugador y un valor del juego determinado. Este resultado fundamental establece que la teoria de juegos tiene una solucion racional bien definida.
 
 ### 6.2. El algoritmo minimax
 
