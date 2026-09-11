@@ -162,6 +162,20 @@ footer { text-align:center; padding:1.5rem; font-size:0.75rem; color:var(--text-
 .deep-dive .deep-content { padding:1rem 1.25rem; background:var(--surface); }
 .deep-dive .deep-content p { margin-bottom:0.75rem; }
 .deep-dive .deep-content .formula { background:var(--surface-alt); padding:0.5rem 1rem; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:0.9rem; margin:0.75rem 0; overflow-x:auto; }
+
+/* ── NOTAS EXPO ── */
+.expo-notes { display:grid; grid-template-columns:1fr 1fr; gap:0; margin:0 auto 1.5rem; max-width:960px; border-radius:8px; overflow:hidden; border:2px solid var(--amber); }
+.expo-note { padding:0.85rem 1rem; font-size:0.82rem; line-height:1.55; }
+.expo-note:first-child { background:rgba(35,91,78,0.08); border-right:1px solid var(--border); }
+.expo-note:last-child { background:rgba(252,187,107,0.08); }
+.expo-note h4 { font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.4rem; }
+.expo-note h4.gio { color:var(--verde); }
+.expo-note h4.dan { color:#b8860b; }
+.expo-note ul { margin:0; padding-left:1.1rem; }
+.expo-note li { margin-bottom:0.25rem; }
+.expo-note .kw { font-weight:700; }
+.expo-notes-label { text-align:center; font-size:0.7rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--amber); margin:1.5rem auto 0.4rem; max-width:960px; }
+@media(max-width:640px){ .expo-notes { grid-template-columns:1fr; } .expo-note:first-child { border-right:none; border-bottom:1px solid var(--border); } }
 </style>
 </head>
 <body>
@@ -196,6 +210,27 @@ footer { text-align:center; padding:1.5rem; font-size:0.75rem; color:var(--text-
 <!-- ═══════════ TAB 1: ESPACIO DE ESTADOS ═══════════ -->
 <div class="tab-panel active" id="tab-estados">
 <div class="content">
+  <div class="expo-notes-label">Notas expo - conecta con tu negocio</div>
+  <div class="expo-notes">
+    <div class="expo-note">
+      <h4 class="gio">Gio - BoxiTec</h4>
+      <ul>
+        <li><span class="kw">Estado inicial</span> = layout actual de tu tienda (9 categorias, 8 productos destacados)</li>
+        <li><span class="kw">Estado meta</span> = conversion rate arriba de 3%</li>
+        <li><span class="kw">Operadores</span> = reordenar productos, cambiar precio, agregar filtro, poner descuento</li>
+        <li><span class="kw">Costo</span> = tiempo dev en Vercel + margen perdido en descuentos</li>
+      </ul>
+    </div>
+    <div class="expo-note">
+      <h4 class="dan">Daniel - Marketing</h4>
+      <ul>
+        <li><span class="kw">Estado inicial</span> = config del funnel (ad + landing + form)</li>
+        <li><span class="kw">Estado meta</span> = CPL &lt; $50 MXN</li>
+        <li><span class="kw">Operadores</span> = cambiar headline, swap imagen, ajustar audiencia</li>
+        <li><span class="kw">Costo</span> = gasto de ads por cada cambio</li>
+      </ul>
+    </div>
+  </div>
   <div class="section">
     <div class="section-label">Bloque B &middot; Secci&oacute;n 1</div>
     <h2>Espacio de estados</h2>
@@ -297,6 +332,29 @@ visitados = {estado}
 <!-- ═══════════ TAB 2: BÚSQUEDA ADELANTE/ATRÁS ═══════════ -->
 <div class="tab-panel" id="tab-direccion">
 <div class="content">
+  <div class="expo-notes-label">Notas expo - conecta con tu negocio</div>
+  <div class="expo-notes">
+    <div class="expo-note">
+      <h4 class="gio">Gio - BoxiTec</h4>
+      <ul>
+        <li><span class="kw">Forward</span> = "tengo estos productos, como los acomodo?"</li>
+        <li><span class="kw">Backward</span> = "quiero 50 ventas/mes, cuanto trafico necesito, de donde?"</li>
+        <li><span class="kw">BFS</span> = probar muchas categorias (ya tienes 9)</li>
+        <li><span class="kw">DFS</span> = especializarte en 1 nicho (ej. solo smartwatches)</li>
+        <li><span class="kw">Bidireccional</span> = local fisico genera clientes online y viceversa</li>
+      </ul>
+    </div>
+    <div class="expo-note">
+      <h4 class="dan">Daniel - Marketing</h4>
+      <ul>
+        <li><span class="kw">Forward</span> = "tengo estas fotos, que ads hago?"</li>
+        <li><span class="kw">Backward</span> = "necesito 20 leads, cuantas impresiones, que budget?"</li>
+        <li><span class="kw">BFS</span> = probar muchas audiencias poquito</li>
+        <li><span class="kw">DFS</span> = ir deep en 1 vertical (doctores esteticos)</li>
+        <li>Meta de $5k/mes = backward clasico</li>
+      </ul>
+    </div>
+  </div>
   <div class="section">
     <div class="section-label">Bloque B &middot; Secci&oacute;n 2</div>
     <h2>B&uacute;squeda hacia adelante y hacia atr&aacute;s</h2>
@@ -412,6 +470,29 @@ visitados = {estado}
 <!-- ═══════════ TAB 3: A, A*, AO* ═══════════ -->
 <div class="tab-panel" id="tab-astar">
 <div class="content">
+  <div class="expo-notes-label">Notas expo - conecta con tu negocio</div>
+  <div class="expo-notes">
+    <div class="expo-note">
+      <h4 class="gio">Gio - BoxiTec</h4>
+      <ul>
+        <li><span class="kw">A* = priorizar que producto pushear</span></li>
+        <li>g = costo de inventario, h = demanda estimada</li>
+        <li>Cable USB C: bajo costo, alta rotacion = buen f</li>
+        <li>Ventilador $650: alto margen, baja rotacion = peor f</li>
+        <li><span class="kw">AO* = publicar producto</span>: fotos AND descripcion AND precio AND stock (OR envio propio / paqueteria)</li>
+      </ul>
+    </div>
+    <div class="expo-note">
+      <h4 class="dan">Daniel - Marketing</h4>
+      <ul>
+        <li><span class="kw">A* = lead scoring</span></li>
+        <li>g = lo invertido en el lead, h = valor si cierra</li>
+        <li>Heuristica admisible = nunca sobreestimar un lead</li>
+        <li><span class="kw">AO* = lanzar campana</span>: creative AND copy AND landing (OR foto / video / carrusel)</li>
+        <li>Workflows n8n = grafos AND-OR</li>
+      </ul>
+    </div>
+  </div>
   <div class="section">
     <div class="section-label">Bloque B &middot; Secci&oacute;n 3</div>
     <h2>Algoritmos A, A* y AO*</h2>
@@ -619,6 +700,27 @@ visitados = {estado}
 <!-- ═══════════ TAB 4: MINIMAX ═══════════ -->
 <div class="tab-panel" id="tab-minimax">
 <div class="content">
+  <div class="expo-notes-label">Notas expo - conecta con tu negocio</div>
+  <div class="expo-notes">
+    <div class="expo-note">
+      <h4 class="gio">Gio - BoxiTec</h4>
+      <ul>
+        <li><span class="kw">MAX = tu precio/propuesta de valor</span></li>
+        <li><span class="kw">MIN = Amazon / Mercado Libre</span></li>
+        <li>Ellos compiten con envio gratis, tu con servicio local</li>
+        <li><span class="kw">Poda alfa-beta:</span> producto sin ventas 30 dias = descuento o quitalo, no ocupes espacio</li>
+      </ul>
+    </div>
+    <div class="expo-note">
+      <h4 class="dan">Daniel - Marketing</h4>
+      <ul>
+        <li><span class="kw">MAX = tu bid en Meta Ads</span></li>
+        <li><span class="kw">MIN = competidores pujan tambien</span></li>
+        <li>Planea asumiendo peor respuesta del rival</li>
+        <li><span class="kw">Poda alfa-beta:</span> ad con CTR &lt; 0.5% en 1000 imps = matalo rapido, no gastes mas</li>
+      </ul>
+    </div>
+  </div>
   <div class="section">
     <div class="section-label">Bloque B &middot; Secci&oacute;n 4</div>
     <h2>Minimax y juegos adversariales</h2>
@@ -853,6 +955,30 @@ visitados = {estado}
 <!-- ═══════════ TAB 5: ALGORITMOS GENÉTICOS ═══════════ -->
 <div class="tab-panel" id="tab-geneticos">
 <div class="content">
+  <div class="expo-notes-label">Notas expo - conecta con tu negocio</div>
+  <div class="expo-notes">
+    <div class="expo-note">
+      <h4 class="gio">Gio - BoxiTec</h4>
+      <ul>
+        <li><span class="kw">Poblacion = variantes de product page</span></li>
+        <li><span class="kw">Fitness = tasa de conversion</span></li>
+        <li><span class="kw">Cruce:</span> mejor titulo + mejor foto = nueva listing</li>
+        <li><span class="kw">Mutacion:</span> bundle inesperado, precio raro ($197 vs $200)</li>
+        <li><span class="kw">Elitismo:</span> nunca tocar la pagina del bestseller</li>
+      </ul>
+    </div>
+    <div class="expo-note">
+      <h4 class="dan">Daniel - Marketing</h4>
+      <ul>
+        <li><span class="kw">Poblacion = ads activos</span></li>
+        <li><span class="kw">Fitness = ROAS / CTR</span></li>
+        <li><span class="kw">Cruce:</span> headline ganador + imagen ganadora = nuevo ad</li>
+        <li><span class="kw">Mutacion:</span> probar algo random (meme, formato nuevo)</li>
+        <li><span class="kw">Elitismo:</span> nunca pausar el top performer</li>
+        <li>Meta Advantage+ = literalmente un genetico sobre tus ads</li>
+      </ul>
+    </div>
+  </div>
   <div class="section">
     <div class="section-label">Bloque B &middot; Secci&oacute;n 5</div>
     <h2>Algoritmos gen&eacute;ticos en b&uacute;squeda</h2>
