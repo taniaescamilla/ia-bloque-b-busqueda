@@ -652,20 +652,7 @@ visitados = {estado}
       <p>Esto es la <strong>desigualdad triangular</strong> aplicada a la heur&iacute;stica: la estimaci&oacute;n desde n no puede ser mayor que el costo de ir a n' m&aacute;s la estimaci&oacute;n desde n'.</p>
       <p><strong>Toda heur&iacute;stica consistente es admisible</strong> (prueba por inducci&oacute;n desde la meta): para un nodo a distancia 1 de la meta G, h(n) &le; c(n,G) + h(G) = c(n,G) + 0 = h*(n). Para nodos m&aacute;s lejos, se aplica el mismo argumento inductivamente por el camino &oacute;ptimo.</p>
       <p><strong>Contraejemplo: admisible pero NO consistente</strong></p>
-      <p>Considere un grafo simple: A &rarr; B &rarr; G, con costos c(A,B)=1, c(B,G)=1. El costo &oacute;ptimo es h*(A)=2, h*(B)=1, h*(G)=0.</p>
-      <div class="table-wrap">
-      <table>
-        <thead><tr><th>Nodo</th><th>h(n)</th><th>h*(n)</th><th>&iquest;h &le; h*?</th></tr></thead>
-        <tbody>
-          <tr><td>A</td><td>1.5</td><td>2</td><td>S&iacute; (admisible)</td></tr>
-          <tr><td>B</td><td>1</td><td>1</td><td>S&iacute; (admisible)</td></tr>
-          <tr><td>G</td><td>0</td><td>0</td><td>S&iacute; (admisible)</td></tr>
-        </tbody>
-      </table>
-      </div>
-      <p>Ahora, probemos consistencia del arco A &rarr; B:</p>
-      <div class="formula">h(A) = 1.5 &le; c(A,B) + h(B) = 1 + 1 = 2 &nbsp;&nbsp; &#10004; Consistente aqu&iacute;</div>
-      <p>Pero si cambiamos h(A)=3 (a&uacute;n &le; h*(A)=2... no, 3 &gt; 2, no ser&iacute;a admisible). Usemos otro ejemplo: A &rarr; B &rarr; G con c(A,B)=1, c(B,G)=3. Entonces h*(A)=4, h*(B)=3. Si ponemos h(A)=3, h(B)=1:</p>
+      <p>Considere un grafo simple: A &rarr; B &rarr; G, con costos c(A,B)=1, c(B,G)=3. El costo &oacute;ptimo es h*(A)=4, h*(B)=3, h*(G)=0. Si ponemos h(A)=3, h(B)=1:</p>
       <div class="table-wrap">
       <table>
         <thead><tr><th>Nodo</th><th>h(n)</th><th>h*(n)</th><th>&iquest;Admisible?</th></tr></thead>

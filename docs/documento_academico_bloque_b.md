@@ -407,6 +407,8 @@ Hart, Nilsson y Raphael (1968) introdujeron A* como una extension del Algoritmo 
 
 **Teorema (Hart et al., 1968):** Si h es admisible, A* es completo y optimo. Es decir, la primera solucion que A* encuentra es necesariamente la de menor costo.
 
+Ojo con un detalle: esa garantia vale para la busqueda en arbol, o en grafo cuando se permite reabrir nodos. El pseudocodigo de abajo usa lista cerrada y nunca reabre un nodo; con esa version, la optimalidad necesita que h sea **consistente** (h(n) <= c(n,n') + h(n') en cada arista). Como toda h consistente es admisible, pedir consistencia es la condicion mas fuerte y la que hay que verificar.
+
 **Teorema de optimalidad de eficiencia:** Ningun otro algoritmo que use la misma informacion heuristica puede garantizar expandir menos nodos que A* sin sacrificar optimalidad (dada una heuristica consistente).
 
 **Pseudocodigo de A*:**
@@ -444,10 +446,10 @@ Consideremos un mapa simplificado donde queremos ir de la ciudad S (inicio) a la
 
 ```
 Mapa:                          Distancias en linea recta a G:
-S --3-- A --2-- G              h(S) = 6
+S --3-- A --2-- G              h(S) = 4
 |       |                      h(A) = 2
 1       4                      h(B) = 5
-|       |                      h(C) = 4
+|       |                      h(C) = 3
 B --5-- C --3-- G              h(G) = 0
 ```
 
@@ -455,18 +457,30 @@ Hay dos caminos de S a G:
 - S -> A -> G: costo real = 3 + 2 = 5
 - S -> B -> C -> G: costo real = 1 + 5 + 3 = 9
 
+Antes de correr A* hay que revisar la heuristica contra los costos reales h*(n), que son el camino mas corto de cada ciudad a G:
+
+| Nodo | h(n) | h*(n) | Admisible (h <= h*) |
+|------|------|-------|---------------------|
+| S    | 4    | 5     | Si                  |
+| A    | 2    | 2     | Si                  |
+| B    | 5    | 6     | Si                  |
+| C    | 3    | 3     | Si                  |
+| G    | 0    | 0     | Si                  |
+
+Tambien es consistente: en cada arista se cumple h(n) <= c(n,n') + h(n'). Por ejemplo, h(S) = 4 <= c(S,A) + h(A) = 3 + 2 = 5, y h(B) = 5 <= c(B,S) + h(S) = 1 + 4 = 5. Una linea recta de verdad nunca puede sobreestimar, pero si los numeros se escriben a mano, hay que comprobarlo: un valor como h(S) = 6 ya seria mayor que el costo real de 5.
+
 Veamos como A* lo descubre sin explorar todo:
 
 | Paso | Extraer | g | h | f=g+h | Abierta (nodo: f)           | Accion |
 |------|---------|---|---|-------|-----------------------------|--------|
-| 0    | -       | - | - | -     | {S: 0+6=6}                 | Inicio |
-| 1    | S       | 0 | 6 | 6     | {A: 3+2=5, B: 1+5=6}       | Expandir S |
-| 2    | A       | 3 | 2 | 5     | {B: 1+5=6, G: 5+0=5}       | Expandir A |
+| 0    | -       | - | - | -     | {S: 0+4=4}                 | Inicio |
+| 1    | S       | 0 | 4 | 4     | {A: 3+2=5, B: 1+5=6}       | Expandir S |
+| 2    | A       | 3 | 2 | 5     | {G: 5+0=5, B: 1+5=6, C: 7+3=10} | Expandir A |
 | 3    | G       | 5 | 0 | 5     | Meta! Solucion: S-A-G, costo 5 | |
 
-A* encontro la solucion optima (S-A-G, costo 5) sin necesidad de explorar B ni C. La heuristica le dijo que A estaba "mas cerca" de G (h=2) y le dio prioridad. Noten que en el paso 2, A* elige entre expandir A (f=5) y B (f=6): elige A porque tiene menor f. Al expandir A, descubre la meta directamente.
+A* encontro la solucion optima (S-A-G, costo 5) sin expandir B ni C: los genero y los metio a la lista abierta, pero nunca los saco. La heuristica le dijo que A estaba "mas cerca" de G (h=2) y le dio prioridad. En el paso 2, A* elige entre A (f=5) y B (f=6): elige A porque tiene menor f. Al expandir A genera G (f=5) y C (f=10), y en el paso 3 G le gana a B (f=6) y a C.
 
-Si hubieramos usado busqueda de costo uniforme (h=0 para todos), habriamos expandido B primero (g=1 < g=3 para A), y luego C, antes de llegar a A y finalmente a G. A* se ahorro esas exploraciones gracias a la heuristica.
+Si hubieramos usado busqueda de costo uniforme (h=0 para todos), el orden de expansion seria S, B, A, G: expande B primero porque g(B)=1 < g(A)=3, y luego A y G. C nunca se expande porque su g (6) es mayor que el de G (5). A* se ahorro expandir B gracias a la heuristica.
 
 La complejidad temporal de A* depende criticamente de la calidad de la heuristica. Con una heuristica perfecta (h = h*), A* va directo a la solucion en O(d). Con h = 0 (sin informacion), A* degenera en busqueda de costo uniforme. En el peor caso, la complejidad es exponencial, pero en la practica heuristicas bien disenadas reducen drasticamente el espacio explorado.
 

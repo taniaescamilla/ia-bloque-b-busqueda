@@ -28,6 +28,11 @@ jobs:
       - name: Ejecutar Guardrails (quality checks)
         run: python guardrails.py presentacion/ia_bloque_b.html
 
+      - name: Pruebas (estructura del HTML y ejemplo de A* contra un A* real)
+        run: |
+          pip install pytest
+          python -m pytest -q tests
+
       - name: Verificar estructura del repositorio
         run: |
           echo "Verificando archivos requeridos..."
